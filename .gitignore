@@ -1,13 +1,19 @@
-# Logs
-claude-monitor.log
+# Generated logs and data files
 *.log
 
-# Data files
-~/.claude-usage-monitor/
+# User data directory (contains personal usage data)
+.claude-usage-monitor/
 
-# Node modules (if any)
+# Runtime dependencies
 node_modules/
 
 # OS specific files
 .DS_Store
 Thumbs.db
+*.swp
+*.swo
+
+# IDE files
+.vscode/
+.idea/
+*.code-workspace

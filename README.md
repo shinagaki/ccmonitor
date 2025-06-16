@@ -74,6 +74,20 @@ chmod +x claude-usage-monitor.ts
 
 Reads Claude Code session logs from `~/.claude/projects/*/` and stores aggregated data in `~/.claude-usage-monitor/usage-log.jsonl`.
 
+## Privacy
+
+This tool only processes local Claude Code session logs on your machine. No data is transmitted to external services. All processing happens locally.
+
+## Requirements
+
+- [Bun](https://bun.sh/) runtime
+- Claude Code installed and with some usage history
+- Unix-like environment (Linux, macOS, WSL)
+
+## Contributing
+
+Contributions are welcome! Please feel free to submit a Pull Request.
+
 ## License
 
-MIT
+MIT - see [LICENSE](LICENSE) file for details.
