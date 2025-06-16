@@ -1,0 +1,13 @@
+# Logs
+claude-monitor.log
+*.log
+
+# Data files
+~/.claude-usage-monitor/
+
+# Node modules (if any)
+node_modules/
+
+# OS specific files
+.DS_Store
+Thumbs.db
