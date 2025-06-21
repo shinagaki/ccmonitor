@@ -221,7 +221,7 @@ class ClaudeUsageMonitor {
         this.displayTable(records);
       }
     } catch (error) {
-      console.error('❌ No usage data found. Run "collect" command first.');
+      console.error('❌ No usage data found. Please ensure Claude Code has been used and logs exist in ~/.claude/projects/');
     }
   }
 
