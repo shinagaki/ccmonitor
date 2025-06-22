@@ -190,7 +190,7 @@ class ClaudeUsageMonitor {
     // console.log(`✅ Usage data collected and saved to ${this.logFile}`);
   }
 
-  async report(options: { since?: string; until?: string; json?: boolean; tail?: number; rolling?: boolean }): Promise<void> {
+  async report(options: { since?: string; until?: string; json?: boolean; tail?: number; rolling?: boolean; full?: boolean }): Promise<void> {
     // Auto-collect data before reporting (like ccusage)
     await this.collect();
 
@@ -217,19 +217,59 @@ class ClaudeUsageMonitor {
       }
 
       if (options.rolling) {
-        this.displayRollingUsage(records);
+        this.displayRollingUsage(records, options.full);
       } else {
-        this.displayTable(records);
+        this.displayTable(records, options.full);
       }
     } catch (error) {
       console.error('❌ No usage data found. Please ensure Claude Code has been used and logs exist in ~/.claude/projects/');
     }
   }
 
-  private displayTable(records: HourlyStats[]): void {
+  private displayTable(records: HourlyStats[], full?: boolean): void {
     if (records.length === 0) {
       console.log('No data found for the specified criteria.');
       return;
+    }
+
+    let displayRecords: HourlyStats[];
+    
+    if (full && records.length > 0) {
+      // fullオプション: 連続した時間を生成
+      const sortedRecords = records.sort((a, b) => b.hour.localeCompare(a.hour));
+      const latestHour = new Date(sortedRecords[0].hour + ':00');
+      const hoursToShow = 24; // 24時間分表示
+      displayRecords = [];
+      
+      // 時間をマップに変換（高速検索用）
+      const recordMap = new Map<string, HourlyStats>();
+      for (const record of sortedRecords) {
+        recordMap.set(record.hour, record);
+      }
+      
+      // 連続した時間を生成
+      for (let i = 0; i < hoursToShow; i++) {
+        const currentHour = new Date(latestHour.getTime() - i * 60 * 60 * 1000);
+        const hourKey = `${currentHour.getFullYear()}-${String(currentHour.getMonth() + 1).padStart(2, '0')}-${String(currentHour.getDate()).padStart(2, '0')} ${String(currentHour.getHours()).padStart(2, '0')}:00`;
+        
+        if (recordMap.has(hourKey)) {
+          displayRecords.push(recordMap.get(hourKey)!);
+        } else {
+          // データがない時間は0で埋める
+          displayRecords.push({
+            hour: hourKey,
+            inputTokens: 0,
+            outputTokens: 0,
+            totalTokens: 0,
+            cost: 0,
+            sessionCount: 0,
+            avgInputPerSession: 0,
+            avgOutputPerSession: 0
+          });
+        }
+      }
+    } else {
+      displayRecords = records;
     }
 
     console.log('\n ╭─────────────────────────────────────────╮');
@@ -251,7 +291,7 @@ class ClaudeUsageMonitor {
     // Data rows
     let totalInput = 0, totalOutput = 0, totalCost = 0, totalSessions = 0;
 
-    for (const record of records) {
+    for (const record of displayRecords) {
       totalInput += record.inputTokens;
       totalOutput += record.outputTokens;
       totalCost += record.cost;
@@ -281,7 +321,7 @@ class ClaudeUsageMonitor {
     console.log();
   }
 
-  private displayRollingUsage(records: HourlyStats[]): void {
+  private displayRollingUsage(records: HourlyStats[], full?: boolean): void {
     if (records.length === 0) {
       console.log('No data found for the specified criteria.');
       return;
@@ -300,13 +340,52 @@ class ClaudeUsageMonitor {
 
     // 最新の時刻から過去5時間のデータを計算
     const sortedRecords = records.sort((a, b) => b.hour.localeCompare(a.hour));
+    
+    let displayRecords: HourlyStats[];
+    
+    if (full && sortedRecords.length > 0) {
+      // fullオプション: 連続した時間を生成
+      const latestHour = new Date(sortedRecords[0].hour + ':00');
+      const hoursToShow = 24; // 24時間分表示
+      displayRecords = [];
+      
+      // 時間をマップに変換（高速検索用）
+      const recordMap = new Map<string, HourlyStats>();
+      for (const record of sortedRecords) {
+        recordMap.set(record.hour, record);
+      }
+      
+      // 連続した時間を生成
+      for (let i = 0; i < hoursToShow; i++) {
+        const currentHour = new Date(latestHour.getTime() - i * 60 * 60 * 1000);
+        const hourKey = `${currentHour.getFullYear()}-${String(currentHour.getMonth() + 1).padStart(2, '0')}-${String(currentHour.getDate()).padStart(2, '0')} ${String(currentHour.getHours()).padStart(2, '0')}:00`;
+        
+        if (recordMap.has(hourKey)) {
+          displayRecords.push(recordMap.get(hourKey)!);
+        } else {
+          // データがない時間は0で埋める
+          displayRecords.push({
+            hour: hourKey,
+            inputTokens: 0,
+            outputTokens: 0,
+            totalTokens: 0,
+            cost: 0,
+            sessionCount: 0,
+            avgInputPerSession: 0,
+            avgOutputPerSession: 0
+          });
+        }
+      }
+    } else {
+      displayRecords = sortedRecords;
+    }
 
     console.log('┌──────────────────┬───────────┬───────────┬───────────────┐');
     console.log('│ Current Hour     │ Hour Cost │5-Hour Cost│ Limit Progress│');
     console.log('├──────────────────┼───────────┼───────────┼───────────────┤');
 
-    for (let i = 0; i < Math.min(sortedRecords.length, 24); i++) {
-      const currentRecord = sortedRecords[i];
+    for (let i = 0; i < Math.min(displayRecords.length, 24); i++) {
+      const currentRecord = displayRecords[i];
       const currentHour = new Date(currentRecord.hour + ':00');
 
       // 過去5時間のデータを収集
@@ -378,7 +457,8 @@ async function main() {
       'tail': { type: 'string', short: 't' },
       'help': { type: 'boolean', short: 'h' },
       'version': { type: 'boolean', short: 'v' },
-      'rolling': { type: 'boolean', short: 'r' }
+      'rolling': { type: 'boolean', short: 'r' },
+      'full': { type: 'boolean', short: 'f' }
     },
     allowPositionals: true
   });
@@ -395,21 +475,23 @@ COMMANDS:
   rolling     Show 5-hour rolling usage (auto-collects data)
 
 OPTIONS:
-  -p, --path <path>        Custom data directory (default: ~/.claude-usage-monitor)
+  -p, --path <path>        Custom data directory (default: ~/.ccmonitor)
   --claude-dir <path>      Custom Claude directory (default: ~/.claude)
   -s, --since <datetime>   Filter from datetime (YYYY-MM-DD HH:mm format)
   -u, --until <datetime>   Filter until datetime (YYYY-MM-DD HH:mm format)
   -t, --tail <number>      Show last N hours only
   -j, --json              Output in JSON format
   -r, --rolling           Show 5-hour rolling usage monitor
+  -f, --full              Show all hours including zero usage (for rolling mode)
   -h, --help              Show this help
   -v, --version           Show version
 
 EXAMPLES:
   ccmonitor report
   ccmonitor rolling
+  ccmonitor rolling --full
   ccmonitor report --since "2025-06-15 09:00" --tail 24
-  ccmonitor report --rolling
+  ccmonitor report --rolling --full
   ccmonitor report --json
 `);
     return;
@@ -430,7 +512,8 @@ EXAMPLES:
         until: values.until as string,
         json: values.json as boolean,
         tail: values.tail ? parseInt(values.tail as string) : undefined,
-        rolling: values.rolling as boolean
+        rolling: values.rolling as boolean,
+        full: values.full as boolean
       });
       break;
     case 'rolling':
@@ -439,7 +522,8 @@ EXAMPLES:
         until: values.until as string,
         json: values.json as boolean,
         tail: values.tail ? parseInt(values.tail as string) : undefined,
-        rolling: true
+        rolling: true,
+        full: values.full as boolean
       });
       break;
     default:

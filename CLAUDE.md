@@ -60,6 +60,9 @@ bun ccmonitor.ts [command]
 
 # Output in JSON format for scripting
 ./ccmonitor report --json
+
+# Show all hours including zero usage (rolling mode)
+./ccmonitor rolling --full
 ```
 
 ## Data Sources and Processing
@@ -81,6 +84,7 @@ The rolling usage monitor tracks Claude Code Pro's $10/5-hour limit with:
 - Hour-specific cost display alongside 5-hour rolling totals
 - Automatic alerts: "HIGH USAGE" at 80%, "OVER LIMIT" at 90%
 - Compact table format optimized for 3-digit percentages
+- **--full option**: Display all hours including zero usage for complete time continuity analysis
 
 ### Auto Data Collection
 Both `report` and `rolling` commands automatically collect the latest usage data before displaying results, eliminating the need for manual data collection steps. This matches ccusage behavior and provides a seamless user experience.
@@ -128,6 +132,7 @@ Matches ccusage tool pricing for Claude Sonnet 4:
 # Manual testing with real data
 ./ccmonitor report --json | jq '.[0]'  # Verify JSON structure
 ./ccmonitor rolling --tail 5         # Test rolling calculations
+./ccmonitor rolling --full --tail 10 # Test full mode with continuous hours
 
 # Edge case testing
 ./ccmonitor report --since "invalid-date"  # Error handling
