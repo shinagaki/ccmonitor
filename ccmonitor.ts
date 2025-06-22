@@ -45,7 +45,7 @@ class ClaudeUsageMonitor {
   private claudeDir: string;
 
   constructor(dataPath?: string, claudeDir?: string) {
-    this.dataPath = dataPath || join(homedir(), '.claude-usage-monitor');
+    this.dataPath = dataPath || join(homedir(), '.ccmonitor');
     this.logFile = join(this.dataPath, 'usage-log.jsonl');
     this.claudeDir = claudeDir || join(homedir(), '.claude');
   }
@@ -64,8 +64,8 @@ class ClaudeUsageMonitor {
     const OUTPUT_COST_PER_1K = 0.015;       // $0.015 per 1K output tokens
     const CACHE_CREATION_COST_PER_1K = 0.0037; // $0.0037 per 1K cache creation tokens
     const CACHE_READ_COST_PER_1K = 0.0003;     // $0.0003 per 1K cache read tokens
-    
-    return (inputTokens / 1000) * INPUT_COST_PER_1K + 
+
+    return (inputTokens / 1000) * INPUT_COST_PER_1K +
            (outputTokens / 1000) * OUTPUT_COST_PER_1K +
            (cacheCreationTokens / 1000) * CACHE_CREATION_COST_PER_1K +
            (cacheReadTokens / 1000) * CACHE_READ_COST_PER_1K;
@@ -74,21 +74,21 @@ class ClaudeUsageMonitor {
   private async loadClaudeData(): Promise<ClaudeLogEntry[]> {
     const entries: ClaudeLogEntry[] = [];
     const seenMessageIds = new Set<string>();
-    
+
     try {
       const projectsPath = join(this.claudeDir, 'projects');
       const projects = await readdir(projectsPath);
-      
+
       for (const project of projects) {
         const projectPath = join(projectsPath, project);
         const files = await readdir(projectPath);
-        
+
         for (const file of files) {
           if (file.endsWith('.jsonl')) {
             const filePath = join(projectPath, file);
             const content = await readFile(filePath, 'utf-8');
             const lines = content.trim().split('\n');
-            
+
             for (const line of lines) {
               try {
                 const entry = JSON.parse(line);
@@ -98,13 +98,13 @@ class ClaudeUsageMonitor {
                     continue;
                   }
                   seenMessageIds.add(entry.message.id);
-                  
+
                   const usage = entry.message.usage;
                   const inputTokens = usage.input_tokens || 0;
                   const outputTokens = usage.output_tokens || 0;
                   const cacheCreationTokens = usage.cache_creation_input_tokens || 0;
                   const cacheReadTokens = usage.cache_read_input_tokens || 0;
-                  
+
                   if (inputTokens > 0 || outputTokens > 0 || cacheCreationTokens > 0 || cacheReadTokens > 0) {
                     entries.push({
                       timestamp: entry.timestamp,
@@ -124,7 +124,7 @@ class ClaudeUsageMonitor {
     } catch (error) {
       console.warn(`Warning: Could not read Claude data from ${this.claudeDir}:`, error.message);
     }
-    
+
     return entries;
   }
 
@@ -135,14 +135,14 @@ class ClaudeUsageMonitor {
 
   async collect(): Promise<void> {
     await this.ensureDataDir();
-    
+
     const entries = await this.loadClaudeData();
     const hourlyStats = new Map<string, HourlyStats>();
-    
+
     // Aggregate data by hour
     for (const entry of entries) {
       const hourKey = this.getHourKey(entry.timestamp);
-      
+
       if (!hourlyStats.has(hourKey)) {
         hourlyStats.set(hourKey, {
           hour: hourKey,
@@ -155,7 +155,7 @@ class ClaudeUsageMonitor {
           avgOutputPerSession: 0
         });
       }
-      
+
       const stats = hourlyStats.get(hourKey)!;
       const usage = entry.message?.usage;
       if (usage) {
@@ -163,7 +163,7 @@ class ClaudeUsageMonitor {
         const outputTokens = usage.output_tokens || 0;
         const cacheCreationTokens = usage.cache_creation_input_tokens || 0;
         const cacheReadTokens = usage.cache_read_input_tokens || 0;
-        
+
         // Input tokensには通常のinput + cache creation + cache readを含める（表示用）
         stats.inputTokens += inputTokens + cacheCreationTokens + cacheReadTokens;
         stats.outputTokens += outputTokens;
@@ -172,31 +172,32 @@ class ClaudeUsageMonitor {
         stats.sessionCount += 1;
       }
     }
-    
+
     // Calculate averages
     for (const stats of hourlyStats.values()) {
       stats.avgInputPerSession = stats.sessionCount > 0 ? stats.inputTokens / stats.sessionCount : 0;
       stats.avgOutputPerSession = stats.sessionCount > 0 ? stats.outputTokens / stats.sessionCount : 0;
     }
-    
+
     // Write to log file
     const logData = Array.from(hourlyStats.values())
       .sort((a, b) => a.hour.localeCompare(b.hour))
       .map(stats => JSON.stringify(stats))
       .join('\n');
-    
+
     await writeFile(this.logFile, logData);
-    console.log(`✅ Usage data collected and saved to ${this.logFile}`);
+    // Silently collect data - only show message if explicitly called
+    // console.log(`✅ Usage data collected and saved to ${this.logFile}`);
   }
 
   async report(options: { since?: string; until?: string; json?: boolean; tail?: number; rolling?: boolean }): Promise<void> {
     // Auto-collect data before reporting (like ccusage)
     await this.collect();
-    
+
     try {
       const content = await readFile(this.logFile, 'utf-8');
       let records: HourlyStats[] = content.trim().split('\n').map(line => JSON.parse(line));
-      
+
       // Filter by date range
       if (options.since) {
         records = records.filter(r => r.hour >= options.since!);
@@ -204,17 +205,17 @@ class ClaudeUsageMonitor {
       if (options.until) {
         records = records.filter(r => r.hour <= options.until!);
       }
-      
+
       // Get last N records if tail is specified
       if (options.tail) {
         records = records.slice(-options.tail);
       }
-      
+
       if (options.json) {
         console.log(JSON.stringify(records, null, 2));
         return;
       }
-      
+
       if (options.rolling) {
         this.displayRollingUsage(records);
       } else {
@@ -230,51 +231,51 @@ class ClaudeUsageMonitor {
       console.log('No data found for the specified criteria.');
       return;
     }
-    
-    console.log('\n ╭──────────────────────────────────────────╮');
-    console.log(' │                                          │');
-    console.log(' │  Claude Code Token Usage Report - Hourly │');
-    console.log(' │                                          │');
-    console.log(' ╰──────────────────────────────────────────╯');
+
+    console.log('\n ╭─────────────────────────────────────────╮');
+    console.log(' │                                         │');
+    console.log(' │     ccmonitor - Hourly Usage Report     │');
+    console.log(' │                                         │');
+    console.log(' ╰─────────────────────────────────────────╯');
     console.log();
-    
+
     // ccusageスタイルの表
     const line1 = '┌──────────────────┬──────────────┬──────────────┬──────────────┬────────────┐';
     const line2 = '│ Hour             │        Input │       Output │        Total │ Cost (USD) │';
     const line3 = '├──────────────────┼──────────────┼──────────────┼──────────────┼────────────┤';
-    
+
     console.log(line1);
     console.log(line2);
     console.log(line3);
-    
+
     // Data rows
     let totalInput = 0, totalOutput = 0, totalCost = 0, totalSessions = 0;
-    
+
     for (const record of records) {
       totalInput += record.inputTokens;
       totalOutput += record.outputTokens;
       totalCost += record.cost;
       totalSessions += record.sessionCount;
-      
+
       const hour = record.hour.padEnd(16);
       const input = record.inputTokens.toLocaleString().padStart(12);
       const output = record.outputTokens.toLocaleString().padStart(12);
       const total = record.totalTokens.toLocaleString().padStart(12);
       const cost = `$${record.cost.toFixed(2)}`.padStart(10);
-      
+
       console.log(`│ ${hour} │ ${input} │ ${output} │ ${total} │ ${cost} │`);
     }
-    
+
     // Separator
     console.log('├──────────────────┼──────────────┼──────────────┼──────────────┼────────────┤');
-    
+
     // Totals
     const totalHour = 'Total'.padEnd(16);
     const totalInputStr = totalInput.toLocaleString().padStart(12);
     const totalOutputStr = totalOutput.toLocaleString().padStart(12);
     const totalTotalStr = (totalInput + totalOutput).toLocaleString().padStart(12);
     const totalCostStr = `$${totalCost.toFixed(2)}`.padStart(10);
-    
+
     console.log(`│ ${totalHour} │ ${totalInputStr} │ ${totalOutputStr} │ ${totalTotalStr} │ ${totalCostStr} │`);
     console.log('└──────────────────┴──────────────┴──────────────┴──────────────┴────────────┘');
     console.log();
@@ -285,68 +286,68 @@ class ClaudeUsageMonitor {
       console.log('No data found for the specified criteria.');
       return;
     }
-    
-    console.log('\n ╭───────────────────────────────────────────────╮');
-    console.log(' │                                               │');
-    console.log(' │  Claude Code Pro Usage Limit Monitor (5-Hour) │');
-    console.log(' │                                               │');
-    console.log(' ╰───────────────────────────────────────────────╯');
+
+    console.log('\n ╭───────────────────────────────────────────╮');
+    console.log(' │                                           │');
+    console.log(' │    ccmonitor - Limit Monitor (5-Hour)     │');
+    console.log(' │                                           │');
+    console.log(' ╰───────────────────────────────────────────╯');
     console.log();
-    
+
     // Claude Proの制限値
     const COST_LIMIT = 10.0;  // $10
     const TIME_WINDOW = 5;    // 5時間
-    
+
     // 最新の時刻から過去5時間のデータを計算
     const sortedRecords = records.sort((a, b) => b.hour.localeCompare(a.hour));
-    
-    console.log('┌──────────────────┬────────────┬────────────┬───────────────┐');
-    console.log('│ Current Hour     │ Hour Cost  │ 5-Hour Cost│ Limit Progress│');
-    console.log('├──────────────────┼────────────┼────────────┼───────────────┤');
-    
+
+    console.log('┌──────────────────┬───────────┬───────────┬───────────────┐');
+    console.log('│ Current Hour     │ Hour Cost │5-Hour Cost│ Limit Progress│');
+    console.log('├──────────────────┼───────────┼───────────┼───────────────┤');
+
     for (let i = 0; i < Math.min(sortedRecords.length, 24); i++) {
       const currentRecord = sortedRecords[i];
       const currentHour = new Date(currentRecord.hour + ':00');
-      
+
       // 過去5時間のデータを収集
       let rollingCost = 0;
       let rollingTokens = 0;
-      
+
       for (const record of sortedRecords) {
         const recordHour = new Date(record.hour + ':00');
         const hoursDiff = (currentHour.getTime() - recordHour.getTime()) / (1000 * 60 * 60);
-        
+
         if (hoursDiff >= 0 && hoursDiff < TIME_WINDOW) {
           rollingCost += record.cost;
           rollingTokens += record.totalTokens;
         }
       }
-      
+
       const progressPercent = (rollingCost / COST_LIMIT * 100);
       const progressBar = this.createProgressBar(progressPercent);
-      
+
       const hour = currentRecord.hour.padEnd(16);
-      const hourCost = `$${currentRecord.cost.toFixed(2)}`.padStart(10);
-      const rollingCostStr = `$${rollingCost.toFixed(2)}`.padStart(10);
+      const hourCost = `$${currentRecord.cost.toFixed(2)}`.padStart(9);
+      const rollingCostStr = `$${rollingCost.toFixed(2)}`.padStart(9);
       const progressText = `${progressPercent.toFixed(1)}%`.padStart(6);
       const progress = `${progressText} ${progressBar}`.padEnd(13);
-      
+
       // 色付け: 80%以上で赤、60%以上で黄色
       const colorCode = progressPercent >= 80 ? '\x1b[31m' : progressPercent >= 60 ? '\x1b[33m' : '\x1b[32m';
       const resetCode = '\x1b[0m';
-      
+
       console.log(`│ ${hour} │ ${hourCost} │ ${rollingCostStr} │${colorCode}${progress}${resetCode}│`);
-      
+
       // 警告表示
       if (progressPercent >= 90) {
-        console.log(`│ ${' '.repeat(16)} │ ${' '.repeat(10)} │ ${' '.repeat(10)} │ 🚨 OVER LIMIT │`);
+        console.log(`│ ${' '.repeat(16)} │ ${' '.repeat(9)} │ ${' '.repeat(9)} │ 🚨 OVER LIMIT │`);
       } else if (progressPercent >= 80) {
-        console.log(`│ ${' '.repeat(16)} │ ${' '.repeat(10)} │ ${' '.repeat(10)} │ ⚠️ HIGH USAGE │`);
+        console.log(`│ ${' '.repeat(16)} │ ${' '.repeat(9)} │ ${' '.repeat(9)} │ ⚠️ HIGH USAGE │`);
       }
     }
-    
-    console.log('└──────────────────┴────────────┴────────────┴───────────────┘');
-    
+
+    console.log('└──────────────────┴───────────┴───────────┴───────────────┘');
+
     console.log();
     console.log('📊 Claude Code Pro Limits:');
     console.log(`   • Cost Limit: $${COST_LIMIT.toFixed(2)} per ${TIME_WINDOW}-hour window`);
@@ -354,7 +355,7 @@ class ClaudeUsageMonitor {
     console.log('   • Color: [32mGreen (Safe)[0m | [33mYellow (Caution)[0m | [31mRed (Danger)[0m');
     console.log();
   }
-  
+
   private createProgressBar(percent: number): string {
     const width = 8;
     const filled = Math.max(0, Math.min(width, Math.round((percent / 100) * width)));
@@ -381,13 +382,13 @@ async function main() {
     },
     allowPositionals: true
   });
-  
+
   if (values.help) {
     console.log(`
-Claude Usage Monitor - 時間別使用量監視ツール
+ccmonitor - Claude Code使用量監視ツール
 
 USAGE:
-  claude-usage-monitor <command> [options]
+  ccmonitor <command> [options]
 
 COMMANDS:
   report      Show hourly usage report (auto-collects data)
@@ -405,23 +406,23 @@ OPTIONS:
   -v, --version           Show version
 
 EXAMPLES:
-  claude-usage-monitor report
-  claude-usage-monitor rolling
-  claude-usage-monitor report --since "2025-06-15 09:00" --tail 24
-  claude-usage-monitor report --rolling
-  claude-usage-monitor report --json
+  ccmonitor report
+  ccmonitor rolling
+  ccmonitor report --since "2025-06-15 09:00" --tail 24
+  ccmonitor report --rolling
+  ccmonitor report --json
 `);
     return;
   }
-  
+
   if (values.version) {
-    console.log('Claude Usage Monitor v1.0.0');
+    console.log('ccmonitor v2.0.0');
     return;
   }
-  
+
   const command = positionals[0] || 'report';
   const monitor = new ClaudeUsageMonitor(values.path as string, values['claude-dir'] as string);
-  
+
   switch (command) {
     case 'report':
       await monitor.report({
@@ -452,4 +453,3 @@ EXAMPLES:
 if (import.meta.main) {
   main().catch(console.error);
 }
-

@@ -1,6 +1,10 @@
-# Claude Usage Monitor
+# ccmonitor
 
 A command-line tool for monitoring Claude Code usage patterns with time-based analysis, similar to Linux's `sar` command but for Claude Code sessions.
+
+> **📢 Repository Renamed**: This project was previously named `claude-usage-monitor` and is now renamed to `ccmonitor` for brevity. Please update your bookmarks and local repository URLs.
+> 
+> **日本語版**: [README.ja.md](README.ja.md)
 
 ## Features
 
@@ -21,25 +25,25 @@ A command-line tool for monitoring Claude Code usage patterns with time-based an
 
 1. Clone this repository:
 ```bash
-git clone https://github.com/yourusername/claude-usage-monitor.git
-cd claude-usage-monitor
-chmod +x claude-usage-monitor.ts
+git clone https://github.com/shinagaki/ccmonitor.git
+cd ccmonitor
+chmod +x ccmonitor.ts
 ```
 
 2. Or download directly:
 ```bash
-curl -O https://raw.githubusercontent.com/yourusername/claude-usage-monitor/main/claude-usage-monitor.ts
-chmod +x claude-usage-monitor.ts
+curl -O https://raw.githubusercontent.com/shinagaki/ccmonitor/main/ccmonitor.ts
+chmod +x ccmonitor.ts
 ```
 
 ### Basic Usage
 
 ```bash
 # Show hourly usage report
-./claude-usage-monitor.ts report
+./ccmonitor report
 
 # Monitor rolling 5-hour usage for Pro limits
-./claude-usage-monitor.ts rolling
+./ccmonitor rolling
 ```
 
 ## Usage Examples
@@ -47,36 +51,36 @@ chmod +x claude-usage-monitor.ts
 ### Hourly Reports
 ```bash
 # Basic hourly report
-./claude-usage-monitor.ts report
+./ccmonitor report
 
 # Last 24 hours only
-./claude-usage-monitor.ts report --tail 24
+./ccmonitor report --tail 24
 
 # Specific time range
-./claude-usage-monitor.ts report --since "2025-06-20 09:00" --until "2025-06-20 18:00"
+./ccmonitor report --since "2025-06-20 09:00" --until "2025-06-20 18:00"
 
 # JSON output for scripting
-./claude-usage-monitor.ts report --json
+./ccmonitor report --json
 ```
 
 ### Rolling Usage Monitoring
 ```bash
 # Monitor Pro usage limits (5-hour rolling window)
-./claude-usage-monitor.ts rolling
+./ccmonitor rolling
 
 # Include rolling view in report
-./claude-usage-monitor.ts report --rolling
+./ccmonitor report --rolling
 ```
 
 ## Understanding the Output
 
 ### Hourly Report
 ```
- ╭──────────────────────────────────────────╮
- │                                          │
- │  Claude Code Token Usage Report - Hourly │
- │                                          │
- ╰──────────────────────────────────────────╯
+ ╭─────────────────────────────────────────╮
+ │                                         │
+ │     ccmonitor - Hourly Usage Report     │
+ │                                         │
+ ╰─────────────────────────────────────────╯
 
 ┌──────────────────┬──────────────┬──────────────┬──────────────┬────────────┐
 │ Hour             │        Input │       Output │        Total │ Cost (USD) │
@@ -91,20 +95,20 @@ chmod +x claude-usage-monitor.ts
 
 ### Rolling Usage Monitor
 ```
-╭───────────────────────────────────────────────╮
-│                                               │
-│  Claude Code Pro Usage Limit Monitor (5-Hour) │
-│                                               │
-╰───────────────────────────────────────────────╯
+╭───────────────────────────────────────────╮
+│                                           │
+│    ccmonitor - Limit Monitor (5-Hour)     │
+│                                           │
+╰───────────────────────────────────────────╯
 
-┌──────────────────┬────────────┬────────────┬───────────────┐
-│ Current Hour     │ Hour Cost  │ 5-Hour Cost│ Limit Progress│
-├──────────────────┼────────────┼────────────┼───────────────┤
-│ 2025-06-20 14:00 │      $0.45 │      $2.34 │  23% ██░░░░░░│
-│ 2025-06-20 15:00 │      $0.67 │      $3.12 │  31% ███░░░░░│
-│ 2025-06-20 16:00 │      $1.23 │      $8.45 │  84% ███████░ ⚠️ HIGH USAGE│
-│ 2025-06-20 17:00 │      $0.89 │      $9.12 │  91% ████████ 🚨 OVER LIMIT│
-└──────────────────┴────────────┴────────────┴───────────────┘
+┌──────────────────┬───────────┬───────────┬───────────────┐
+│ Current Hour     │ Hour Cost │5-Hour Cost│ Limit Progress│
+├──────────────────┼───────────┼───────────┼───────────────┤
+│ 2025-06-20 14:00 │     $0.45 │     $2.34 │  23.0% ██░░░░░░│
+│ 2025-06-20 15:00 │     $0.67 │     $3.12 │  31.0% ███░░░░░│
+│ 2025-06-20 16:00 │     $1.23 │     $8.45 │  84.0% ███████░│
+│ 2025-06-20 17:00 │     $0.89 │     $9.12 │  91.0% ████████│
+└──────────────────┴───────────┴───────────┴───────────────┘
 
 📊 Claude Code Pro Limits:
    • Cost Limit: $10.00 per 5-hour window
@@ -121,7 +125,7 @@ chmod +x claude-usage-monitor.ts
 
 The tool automatically processes:
 - **Claude Code Logs**: JSONL files from `~/.claude/projects/*/`
-- **Aggregated Data**: Stored in `~/.claude-usage-monitor/usage-log.jsonl`
+- **Aggregated Data**: Stored in `~/.ccmonitor/usage-log.jsonl`
 - **Deduplication**: Prevents counting the same message multiple times using message IDs
 
 ## Cost Calculation
@@ -140,7 +144,7 @@ Accurate pricing for Claude Sonnet 4:
 
 ### Report Command
 ```bash
-./claude-usage-monitor.ts report [options]
+./ccmonitor report [options]
 ```
 
 **Options:**
@@ -152,7 +156,7 @@ Accurate pricing for Claude Sonnet 4:
 
 ### Rolling Command
 ```bash
-./claude-usage-monitor.ts rolling [options]
+./ccmonitor rolling [options]
 ```
 
 **Options:**
@@ -185,14 +189,23 @@ Claude Code Pro has a $10 spending limit per 5-hour rolling window. The rolling 
 - The tool automatically deduplicates entries using message IDs
 - If you see duplicates, please report as a bug
 
+**Migrating from previous versions**
+- If you previously used `claude-usage-monitor.ts`, rename it to `ccmonitor.ts`
+- Old aggregated data is stored in `~/.claude-usage-monitor/` but ccmonitor uses `~/.ccmonitor/`
+- Migration options:
+  - **Quick migration**: `mv ~/.claude-usage-monitor ~/.ccmonitor` (preserves aggregated data)
+  - **Fresh start**: Delete old directory and let ccmonitor rebuild from Claude Code logs
+- After migration, you can safely delete `~/.claude-usage-monitor/` if you moved the data
+- **Note**: Aggregated data only contains usage summaries, not original Claude Code logs, so rebuilding is always possible
+
 ### Getting Help
 
 ```bash
 # Show detailed help
-./claude-usage-monitor.ts --help
+./ccmonitor --help
 
 # Check version
-./claude-usage-monitor.ts --version
+./ccmonitor --version
 ```
 
 ## Technical Details
@@ -200,7 +213,7 @@ Claude Code Pro has a $10 spending limit per 5-hour rolling window. The rolling 
 ### Architecture
 - **Single File**: Pure TypeScript with Bun runtime
 - **Data Processing**: Efficient JSONL parsing with deduplication
-- **Storage**: Local aggregation in `~/.claude-usage-monitor/`
+- **Storage**: Local aggregation in `~/.ccmonitor/`
 - **Display**: Terminal-optimized formatting with color coding
 
 ### Performance

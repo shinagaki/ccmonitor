@@ -1,9 +1,6 @@
 # Generated logs and data files
 *.log
 
-# User data directory (contains personal usage data)
-.claude-usage-monitor/
-
 # Runtime dependencies
 node_modules/
 

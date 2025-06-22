@@ -4,11 +4,11 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-Claude Usage Monitor is a command-line tool that analyzes Claude Code usage patterns by parsing JSONL log files. It provides historical reporting and real-time monitoring capabilities, with special focus on Claude Code Pro's usage limits ($10 per 5-hour rolling window).
+ccmonitor is a command-line tool that analyzes Claude Code usage patterns by parsing JSONL log files. It provides historical reporting and real-time monitoring capabilities, with special focus on Claude Code Pro's usage limits ($10 per 5-hour rolling window).
 
 ## Architecture
 
-Single TypeScript file (`claude-usage-monitor.ts`) using Bun runtime with key components:
+Single TypeScript file (`ccmonitor.ts`) using Bun runtime with key components:
 - **ClaudeUsageMonitor class**: Main orchestrator handling data collection, aggregation, and reporting
 - **Data Processing Pipeline**: Reads JSONL files from `~/.claude/projects/`, deduplicates by message ID, and aggregates usage by hour
 - **Rolling Window Analysis**: Calculates 5-hour rolling totals for Pro limit monitoring
@@ -22,44 +22,44 @@ Single TypeScript file (`claude-usage-monitor.ts`) using Bun runtime with key co
 curl -fsSL https://bun.sh/install | bash
 
 # Make executable (first time only)
-chmod +x claude-usage-monitor.ts
+chmod +x ccmonitor.ts
 
 # Run directly with Bun (alternative to chmod +x)
-bun claude-usage-monitor.ts [command]
+bun ccmonitor.ts [command]
 ```
 
 ### Testing and Verification
 ```bash
 # Test basic functionality
-./claude-usage-monitor.ts --help
-./claude-usage-monitor.ts --version
+./ccmonitor --help
+./ccmonitor --version
 
 # Verify data collection works
-./claude-usage-monitor.ts report --json | head -5
+./ccmonitor report --json | head -5
 ```
 
 ### Basic Usage
 ```bash
 # Show hourly usage report (auto-collects data)
-./claude-usage-monitor.ts report
+./ccmonitor report
 
 # Show 5-hour rolling usage for Pro limit monitoring (auto-collects data)
-./claude-usage-monitor.ts rolling
+./ccmonitor rolling
 ```
 
 ### Advanced Options
 ```bash
 # Show specific time range
-./claude-usage-monitor.ts report --since "2025-06-15 09:00" --until "2025-06-16 18:00"
+./ccmonitor report --since "2025-06-15 09:00" --until "2025-06-16 18:00"
 
 # Show last N hours only
-./claude-usage-monitor.ts report --tail 24
+./ccmonitor report --tail 24
 
 # Enable rolling view in report command
-./claude-usage-monitor.ts report --rolling
+./ccmonitor report --rolling
 
 # Output in JSON format for scripting
-./claude-usage-monitor.ts report --json
+./ccmonitor report --json
 ```
 
 ## Data Sources and Processing
@@ -71,7 +71,7 @@ bun claude-usage-monitor.ts [command]
   - Output tokens: $0.015/1K  
   - Cache creation: $0.0037/1K
   - Cache read: $0.0003/1K
-- **Storage**: Aggregated data stored in `~/.claude-usage-monitor/usage-log.jsonl`
+- **Storage**: Aggregated data stored in `~/.ccmonitor/usage-log.jsonl`
 
 ## Key Features
 
@@ -111,14 +111,14 @@ Matches ccusage tool pricing for Claude Sonnet 4:
 ## Project Structure
 
 ### Core Implementation
-- **claude-usage-monitor.ts**: Main executable TypeScript file with shebang `#!/usr/bin/env bun`
+- **ccmonitor.ts**: Main executable TypeScript file with shebang `#!/usr/bin/env bun`
 - **ClaudeUsageMonitor class**: Primary class containing all functionality
 - **No dependencies**: Zero external dependencies, uses only Node.js built-ins
 
 ## Development Guidelines
 
 ### Code Constraints
-- **Single File Architecture**: All functionality must remain in `claude-usage-monitor.ts`
+- **Single File Architecture**: All functionality must remain in `ccmonitor.ts`
 - **Zero Dependencies**: Use only Node.js/Bun built-ins (fs, path, os, util)
 - **Self-Contained**: No package.json or build process required
 - **TypeScript**: Maintain strict typing throughout
@@ -126,34 +126,34 @@ Matches ccusage tool pricing for Claude Sonnet 4:
 ### Testing Strategy
 ```bash
 # Manual testing with real data
-./claude-usage-monitor.ts report --json | jq '.[0]'  # Verify JSON structure
-./claude-usage-monitor.ts rolling --tail 5         # Test rolling calculations
+./ccmonitor report --json | jq '.[0]'  # Verify JSON structure
+./ccmonitor rolling --tail 5         # Test rolling calculations
 
 # Edge case testing
-./claude-usage-monitor.ts report --since "invalid-date"  # Error handling
-./claude-usage-monitor.ts report --tail 0               # Boundary conditions
+./ccmonitor report --since "invalid-date"  # Error handling
+./ccmonitor report --tail 0               # Boundary conditions
 ```
 
 ### Linting and Type Checking
 Since this is a TypeScript project, run type checking when making changes:
 ```bash
 # Type check with Bun (built-in TypeScript support)
-bun --check claude-usage-monitor.ts
+bun --check ccmonitor.ts
 
 # For stricter type checking during development
-bunx tsc --noEmit claude-usage-monitor.ts
+bunx tsc --noEmit ccmonitor.ts
 ```
 
 ### Debugging Commands
 ```bash
 # Check data collection status
-ls -la ~/.claude-usage-monitor/
+ls -la ~/.ccmonitor/
 
 # Verify JSONL parsing
-./claude-usage-monitor.ts report --json | head -1 | jq .
+./ccmonitor report --json | head -1 | jq .
 
 # Debug timestamp parsing
-./claude-usage-monitor.ts report --since "$(date -d '1 hour ago' '+%Y-%m-%d %H:%M')"
+./ccmonitor report --since "$(date -d '1 hour ago' '+%Y-%m-%d %H:%M')"
 
 # Validate cost calculations manually
 bun -e "console.log((1000/1000) * 0.003 + (2000/1000) * 0.015)"  # Expected: 0.033
