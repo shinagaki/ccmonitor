@@ -61,6 +61,9 @@ chmod +x ccmonitor.ts
 
 # JSON output for scripting
 ./ccmonitor report --json
+
+# Show all hours including zero usage
+./ccmonitor report --full
 ```
 
 ### Rolling Usage Monitoring
@@ -152,6 +155,7 @@ Accurate pricing for Claude Sonnet 4:
 - `--until <datetime>`: End time (e.g., "2025-06-20 18:00")  
 - `--tail <hours>`: Show only last N hours
 - `--rolling`: Include rolling usage view
+- `--full`: Show all hours including zero usage
 - `--json`: Output in JSON format
 
 ### Rolling Command
@@ -161,6 +165,7 @@ Accurate pricing for Claude Sonnet 4:
 
 **Options:**
 - `--tail <hours>`: Show only last N hours
+- `--full`: Show all hours including zero usage
 - `--json`: Output in JSON format
 
 ## Pro Usage Limits

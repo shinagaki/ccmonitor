@@ -63,6 +63,9 @@ chmod +x ccmonitor.ts
 
 # スクリプト用JSON出力
 ./ccmonitor report --json
+
+# ゼロ使用量を含む全時間表示
+./ccmonitor report --full
 ```
 
 ### ローリング使用量監視
@@ -162,6 +165,7 @@ Claude Sonnet 4 の正確な料金：
 - `--until <日時>`: 終了時刻（例: "2025-06-20 18:00"）
 - `--tail <時間数>`: 直近 N 時間のみ表示
 - `--rolling`: ローリング使用量ビューを含める
+- `--full`: ゼロ使用量を含む全時間表示
 - `--json`: JSON 形式で出力
 
 ### rolling コマンド
@@ -173,6 +177,7 @@ Claude Sonnet 4 の正確な料金：
 **オプション:**
 
 - `--tail <時間数>`: 直近 N 時間のみ表示
+- `--full`: ゼロ使用量を含む全時間表示
 - `--json`: JSON 形式で出力
 
 ## Pro 使用量制限
