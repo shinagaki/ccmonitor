@@ -190,7 +190,7 @@ class ClaudeUsageMonitor {
     // console.log(`✅ Usage data collected and saved to ${this.logFile}`);
   }
 
-  async report(options: { since?: string; until?: string; json?: boolean; tail?: number; rolling?: boolean; full?: boolean }): Promise<void> {
+  async report(options: { since?: string; until?: string; json?: boolean; tail?: number; rolling?: boolean; full?: boolean; noHeader?: boolean }): Promise<void> {
     // Auto-collect data before reporting (like ccusage)
     await this.collect();
 
@@ -217,16 +217,16 @@ class ClaudeUsageMonitor {
       }
 
       if (options.rolling) {
-        this.displayRollingUsage(records, options.full);
+        this.displayRollingUsage(records, options.full, options.noHeader);
       } else {
-        this.displayTable(records, options.full);
+        this.displayTable(records, options.full, options.noHeader);
       }
     } catch (error) {
       console.error('❌ No usage data found. Please ensure Claude Code has been used and logs exist in ~/.claude/projects/');
     }
   }
 
-  private displayTable(records: HourlyStats[], full?: boolean): void {
+  private displayTable(records: HourlyStats[], full?: boolean, noHeader?: boolean): void {
     if (records.length === 0) {
       console.log('No data found for the specified criteria.');
       return;
@@ -272,12 +272,14 @@ class ClaudeUsageMonitor {
       displayRecords = records;
     }
 
-    console.log('\n ╭─────────────────────────────────────────╮');
-    console.log(' │                                         │');
-    console.log(' │     ccmonitor - Hourly Usage Report     │');
-    console.log(' │                                         │');
-    console.log(' ╰─────────────────────────────────────────╯');
-    console.log();
+    if (!noHeader) {
+      console.log('\n ╭─────────────────────────────────────────╮');
+      console.log(' │                                         │');
+      console.log(' │     ccmonitor - Hourly Usage Report     │');
+      console.log(' │                                         │');
+      console.log(' ╰─────────────────────────────────────────╯');
+      console.log();
+    }
 
     // ccusageスタイルの表
     const line1 = '┌──────────────────┬──────────────┬──────────────┬──────────────┬────────────┐';
@@ -321,18 +323,20 @@ class ClaudeUsageMonitor {
     console.log();
   }
 
-  private displayRollingUsage(records: HourlyStats[], full?: boolean): void {
+  private displayRollingUsage(records: HourlyStats[], full?: boolean, noHeader?: boolean): void {
     if (records.length === 0) {
       console.log('No data found for the specified criteria.');
       return;
     }
 
-    console.log('\n ╭───────────────────────────────────────────╮');
-    console.log(' │                                           │');
-    console.log(' │    ccmonitor - Limit Monitor (5-Hour)     │');
-    console.log(' │                                           │');
-    console.log(' ╰───────────────────────────────────────────╯');
-    console.log();
+    if (!noHeader) {
+      console.log('\n ╭───────────────────────────────────────────╮');
+      console.log(' │                                           │');
+      console.log(' │    ccmonitor - Limit Monitor (5-Hour)     │');
+      console.log(' │                                           │');
+      console.log(' ╰───────────────────────────────────────────╯');
+      console.log();
+    }
 
     // Claude Proの制限値
     const COST_LIMIT = 10.0;  // $10
@@ -427,12 +431,14 @@ class ClaudeUsageMonitor {
 
     console.log('└──────────────────┴───────────┴───────────┴───────────────┘');
 
-    console.log();
-    console.log('📊 Claude Code Pro Limits:');
-    console.log(`   • Cost Limit: $${COST_LIMIT.toFixed(2)} per ${TIME_WINDOW}-hour window`);
-    console.log(`   • Time Window: Rolling ${TIME_WINDOW}-hour period`);
-    console.log('   • Color: [32mGreen (Safe)[0m | [33mYellow (Caution)[0m | [31mRed (Danger)[0m');
-    console.log();
+    if (!noHeader) {
+      console.log();
+      console.log('📊 Claude Code Pro Limits:');
+      console.log(`   • Cost Limit: $${COST_LIMIT.toFixed(2)} per ${TIME_WINDOW}-hour window`);
+      console.log(`   • Time Window: Rolling ${TIME_WINDOW}-hour period`);
+      console.log('   • Color: [32mGreen (Safe)[0m | [33mYellow (Caution)[0m | [31mRed (Danger)[0m');
+      console.log();
+    }
   }
 
   private createProgressBar(percent: number): string {
@@ -458,7 +464,8 @@ async function main() {
       'help': { type: 'boolean', short: 'h' },
       'version': { type: 'boolean', short: 'v' },
       'rolling': { type: 'boolean', short: 'r' },
-      'full': { type: 'boolean', short: 'f' }
+      'full': { type: 'boolean', short: 'f' },
+      'no-header': { type: 'boolean' }
     },
     allowPositionals: true
   });
@@ -483,6 +490,7 @@ OPTIONS:
   -j, --json              Output in JSON format
   -r, --rolling           Show 5-hour rolling usage monitor
   -f, --full              Show all hours including zero usage (for rolling mode)
+  --no-header             Hide feature description headers for compact display
   -h, --help              Show this help
   -v, --version           Show version
 
@@ -493,6 +501,10 @@ EXAMPLES:
   ccmonitor report --since "2025-06-15 09:00" --tail 24
   ccmonitor report --rolling --full
   ccmonitor report --json
+  
+  # Compact display without headers (useful for scripting)
+  ccmonitor report --no-header --tail 5
+  ccmonitor rolling --no-header
 `);
     return;
   }
@@ -513,7 +525,8 @@ EXAMPLES:
         json: values.json as boolean,
         tail: values.tail ? parseInt(values.tail as string) : undefined,
         rolling: values.rolling as boolean,
-        full: values.full as boolean
+        full: values.full as boolean,
+        noHeader: values['no-header'] as boolean
       });
       break;
     case 'rolling':
@@ -523,7 +536,8 @@ EXAMPLES:
         json: values.json as boolean,
         tail: values.tail ? parseInt(values.tail as string) : undefined,
         rolling: true,
-        full: values.full as boolean
+        full: values.full as boolean,
+        noHeader: values['no-header'] as boolean
       });
       break;
     default:

@@ -12,6 +12,7 @@ Claude Code の使用パターンを時系列分析するコマンドライン�
 - 📈 **進捗の可視化**: 使用量制限に対するカラーコード付きプログレスバー
 - ⚡ **自動データ収集**: 最新の Claude Code ログを自動スキャン・処理
 - 🔍 **柔軟なフィルタリング**: 時間範囲フィルタリングと tail オプション
+- 🎛️ **コンパクト表示**: スクリプトや監視用の `--no-header` オプション
 
 ## クイックスタート
 
@@ -66,6 +67,9 @@ chmod +x ccmonitor.ts
 
 # ゼロ使用量を含む全時間表示
 ./ccmonitor report --full
+
+# 機能説明ヘッダーなしのコンパクト表示（スクリプト用）
+./ccmonitor report --no-header --tail 5
 ```
 
 ### ローリング使用量監視
@@ -76,6 +80,21 @@ chmod +x ccmonitor.ts
 
 # レポートにローリングビューを含める
 ./ccmonitor report --rolling
+
+# 監視用のコンパクトローリング表示
+./ccmonitor rolling --no-header
+```
+
+### `watch` コマンドを使ったリアルタイム監視
+```bash
+# 60秒ごとにローリング使用量を監視
+watch -n 60 './ccmonitor rolling --no-header'
+
+# フル時間範囲での継続監視
+watch -n 30 './ccmonitor rolling --full --no-header'
+
+# 直近の使用パターンを監視
+watch -n 120 './ccmonitor report --no-header --tail 12'
 ```
 
 ## 出力の理解

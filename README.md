@@ -14,6 +14,7 @@ A command-line tool for monitoring Claude Code usage patterns with time-based an
 - 📈 **Progress Visualization**: Color-coded progress bars for usage limits
 - ⚡ **Auto Data Collection**: Automatically scans and processes the latest Claude Code logs
 - 🔍 **Flexible Filtering**: Time range filtering and tail options
+- 🎛️ **Compact Display**: `--no-header` option for scripting and monitoring
 
 ## Quick Start
 
@@ -64,6 +65,9 @@ chmod +x ccmonitor.ts
 
 # Show all hours including zero usage
 ./ccmonitor report --full
+
+# Compact display without feature headers (useful for scripting)
+./ccmonitor report --no-header --tail 5
 ```
 
 ### Rolling Usage Monitoring
@@ -73,6 +77,21 @@ chmod +x ccmonitor.ts
 
 # Include rolling view in report
 ./ccmonitor report --rolling
+
+# Compact rolling display for monitoring
+./ccmonitor rolling --no-header
+```
+
+### Real-time Monitoring with `watch`
+```bash
+# Monitor rolling usage every 60 seconds
+watch -n 60 './ccmonitor rolling --no-header'
+
+# Continuous monitoring with full time range
+watch -n 30 './ccmonitor rolling --full --no-header'
+
+# Watch recent usage patterns  
+watch -n 120 './ccmonitor report --no-header --tail 12'
 ```
 
 ## Understanding the Output
