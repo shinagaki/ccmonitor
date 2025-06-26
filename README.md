@@ -3,6 +3,8 @@
 A command-line tool for monitoring Claude Code usage patterns with time-based analysis, similar to Linux's `sar` command but for Claude Code sessions.
 
 > **📢 Repository Renamed**: This project was previously named `claude-usage-monitor` and is now renamed to `ccmonitor` for brevity. Please update your bookmarks and local repository URLs.
+>
+> **🚀 Now Available via npx**: As of v3.0.0, ccmonitor supports `npx ccmonitor` for instant usage without installation! No more manual downloads or Bun dependencies required. The tool now supports both Node.js (via npm/npx) and Bun runtimes.
 > 
 > **日本語版**: [README.ja.md](README.ja.md)
 
@@ -19,32 +21,65 @@ A command-line tool for monitoring Claude Code usage patterns with time-based an
 ## Quick Start
 
 ### Prerequisites
-- [Bun runtime](https://bun.sh/) installed
+- Node.js 16+ installed
 - Claude Code installed and used (generates logs in `~/.claude/projects/`)
+- Optional: [Bun runtime](https://bun.sh/) for development (TypeScript direct execution)
 
 ### Installation
 
-1. Clone this repository:
+#### Option 1: npx (Recommended - No installation required)
 ```bash
-git clone https://github.com/shinagaki/ccmonitor.git
-cd ccmonitor
-chmod +x ccmonitor.ts
+# Run directly with npx (most convenient)
+npx ccmonitor report
+npx ccmonitor rolling
+
+# Or install globally
+npm install -g ccmonitor
+ccmonitor report
 ```
 
-2. Or download directly:
+#### Option 2: Download and run locally (Development)
 ```bash
+# Clone this repository
+git clone https://github.com/shinagaki/ccmonitor.git
+cd ccmonitor
+
+# For Node.js users - build and run JavaScript version
+npm run build
+./ccmonitor.js report
+
+# For Bun development - run TypeScript directly  
+chmod +x ccmonitor.ts
+./ccmonitor.ts report
+```
+
+#### Option 3: Direct download
+```bash
+# Download built JavaScript version (Node.js compatible)
+curl -O https://raw.githubusercontent.com/shinagaki/ccmonitor/main/ccmonitor.js
+chmod +x ccmonitor.js
+./ccmonitor.js report
+
+# Or download TypeScript version (Bun required)
 curl -O https://raw.githubusercontent.com/shinagaki/ccmonitor/main/ccmonitor.ts
 chmod +x ccmonitor.ts
+./ccmonitor.ts report
 ```
 
 ### Basic Usage
 
 ```bash
-# Show hourly usage report
-./ccmonitor report
+# With npx (no installation required)
+npx ccmonitor report
+npx ccmonitor rolling
 
-# Monitor rolling 5-hour usage for Pro limits
-./ccmonitor rolling
+# With local installation
+./ccmonitor.js report  # Node.js version (built from TypeScript)
+./ccmonitor.ts report  # Bun version (TypeScript direct execution)
+
+# With global installation
+ccmonitor report
+ccmonitor rolling
 ```
 
 ## Usage Examples
@@ -245,13 +280,39 @@ Claude Code Pro has a $10 spending limit per 5-hour rolling window. The rolling 
 - Automatic incremental updates (only processes new data)
 - Minimal memory footprint
 
+## Development
+
+### Building for Node.js
+
+If you're working with the TypeScript source and want to create a Node.js compatible version:
+
+```bash
+# Build JavaScript version from TypeScript
+npm run build
+
+# Test the built version
+./ccmonitor.js --version
+```
+
+### Publishing to npm
+
+```bash
+# Build and publish (automatically runs build before publish)
+npm publish
+
+# Test installation from npm
+npm install -g ccmonitor
+ccmonitor --version
+```
+
 ## Contributing
 
 1. Fork the repository
 2. Create a feature branch: `git checkout -b feature-name`
 3. Make your changes
 4. Test thoroughly with your own Claude Code data
-5. Submit a pull request
+5. Run `npm run build` to ensure JavaScript version works
+6. Submit a pull request
 
 ## License
 

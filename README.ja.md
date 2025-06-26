@@ -3,6 +3,8 @@
 Claude Code の使用パターンを時系列分析するコマンドラインツール。Linux の SAR コマンドのように Claude Code セッションを監視します。
 
 > **📢 リポジトリ名変更のお知らせ**: このプロジェクトは以前 `claude-usage-monitor` という名前でしたが、簡潔にするため `ccmonitor` に変更されました。ブックマークやローカルリポジトリの URL を更新してください。
+>
+> **🚀 npx対応開始**: v3.0.0より、ccmonitorは`npx ccmonitor`でのインストール不要実行に対応！手動ダウンロードやBun依存性が不要になりました。Node.js（npm/npx経由）とBunランタイム両方をサポートします。
 
 ## 機能
 
@@ -18,34 +20,65 @@ Claude Code の使用パターンを時系列分析するコマンドライン�
 
 ### 前提条件
 
-- [Bun ランタイム](https://bun.sh/)がインストール済み
+- Node.js 16+ がインストール済み
 - Claude Code がインストールされ使用済み（`~/.claude/projects/`にログが生成される）
+- オプション: 開発用の [Bun ランタイム](https://bun.sh/)（TypeScript直接実行）
 
 ### インストール
 
-1. リポジトリをクローン：
-
+#### オプション 1: npx（推奨 - インストール不要）
 ```bash
-git clone https://github.com/shinagaki/ccmonitor.git
-cd ccmonitor
-chmod +x ccmonitor.ts
+# npxで直接実行（最も便利）
+npx ccmonitor report
+npx ccmonitor rolling
+
+# またはグローバルインストール
+npm install -g ccmonitor
+ccmonitor report
 ```
 
-2. または直接ダウンロード：
-
+#### オプション 2: ローカルダウンロードと実行（開発用）
 ```bash
+# リポジトリをクローン
+git clone https://github.com/shinagaki/ccmonitor.git
+cd ccmonitor
+
+# Node.jsユーザー - JavaScriptバージョンをビルドして実行
+npm run build
+./ccmonitor.js report
+
+# Bun開発用 - TypeScriptを直接実行  
+chmod +x ccmonitor.ts
+./ccmonitor.ts report
+```
+
+#### オプション 3: 直接ダウンロード
+```bash
+# ビルド済みJavaScriptバージョンをダウンロード（Node.js互換）
+curl -O https://raw.githubusercontent.com/shinagaki/ccmonitor/main/ccmonitor.js
+chmod +x ccmonitor.js
+./ccmonitor.js report
+
+# またはTypeScriptバージョンをダウンロード（Bun必須）
 curl -O https://raw.githubusercontent.com/shinagaki/ccmonitor/main/ccmonitor.ts
 chmod +x ccmonitor.ts
+./ccmonitor.ts report
 ```
 
 ### 基本的な使用方法
 
 ```bash
-# 時間別使用量レポートを表示
-./ccmonitor report
+# npx使用（インストール不要）
+npx ccmonitor report
+npx ccmonitor rolling
 
-# Pro制限の5時間ローリング使用量を監視
-./ccmonitor rolling
+# ローカルインストール使用
+./ccmonitor.js report  # Node.jsバージョン（TypeScriptからビルド）
+./ccmonitor.ts report  # Bunバージョン（TypeScript直接実行）
+
+# グローバルインストール使用
+ccmonitor report
+ccmonitor rolling
 ```
 
 ## 使用例
@@ -54,47 +87,48 @@ chmod +x ccmonitor.ts
 
 ```bash
 # 基本的な時間別レポート
-./ccmonitor report
+npx ccmonitor report        # npx版
+./ccmonitor.js report      # ローカル版
 
 # 直近24時間のみ
-./ccmonitor report --tail 24
+npx ccmonitor report --tail 24
 
 # 特定の時間範囲
-./ccmonitor report --since "2025-06-20 09:00" --until "2025-06-20 18:00"
+npx ccmonitor report --since "2025-06-20 09:00" --until "2025-06-20 18:00"
 
 # スクリプト用JSON出力
-./ccmonitor report --json
+npx ccmonitor report --json
 
 # ゼロ使用量を含む全時間表示
-./ccmonitor report --full
+npx ccmonitor report --full
 
 # 機能説明ヘッダーなしのコンパクト表示（スクリプト用）
-./ccmonitor report --no-header --tail 5
+npx ccmonitor report --no-header --tail 5
 ```
 
 ### ローリング使用量監視
 
 ```bash
 # Pro使用量制限の監視（5時間ローリングウィンドウ）
-./ccmonitor rolling
+npx ccmonitor rolling
 
 # レポートにローリングビューを含める
-./ccmonitor report --rolling
+npx ccmonitor report --rolling
 
 # 監視用のコンパクトローリング表示
-./ccmonitor rolling --no-header
+npx ccmonitor rolling --no-header
 ```
 
 ### `watch` コマンドを使ったリアルタイム監視
 ```bash
 # 60秒ごとにローリング使用量を監視
-watch -n 60 './ccmonitor rolling --no-header'
+watch -n 60 'npx ccmonitor rolling --no-header'
 
 # フル時間範囲での継続監視
-watch -n 30 './ccmonitor rolling --full --no-header'
+watch -n 30 'npx ccmonitor rolling --full --no-header'
 
 # 直近の使用パターンを監視
-watch -n 120 './ccmonitor report --no-header --tail 12'
+watch -n 120 'npx ccmonitor report --no-header --tail 12'
 ```
 
 ## 出力の理解
@@ -175,7 +209,9 @@ Claude Sonnet 4 の正確な料金：
 ### report コマンド
 
 ```bash
-./ccmonitor report [オプション]
+npx ccmonitor report [オプション]
+# または
+./ccmonitor.js report [オプション]
 ```
 
 **オプション:**
@@ -190,7 +226,9 @@ Claude Sonnet 4 の正確な料金：
 ### rolling コマンド
 
 ```bash
-./ccmonitor rolling [オプション]
+npx ccmonitor rolling [オプション]
+# または
+./ccmonitor.js rolling [オプション]
 ```
 
 **オプション:**
@@ -242,17 +280,17 @@ Claude Code Pro には 5 時間ローリングウィンドウあたり$10 の支
 
 ```bash
 # 詳細ヘルプを表示
-./ccmonitor --help
+npx ccmonitor --help
 
 # バージョンを確認
-./ccmonitor --version
+npx ccmonitor --version
 ```
 
 ## 技術詳細
 
 ### アーキテクチャ
 
-- **単一ファイル**: Bun ランタイムを使用したピュア TypeScript
+- **単一ファイル**: Node.js/Bun ランタイム対応 TypeScript/JavaScript
 - **データ処理**: 重複排除機能付き効率的な JSONL 解析
 - **ストレージ**: `~/.ccmonitor/`でのローカル集約
 - **表示**: カラーコーディング付きターミナル最適化フォーマット
@@ -263,13 +301,39 @@ Claude Code Pro には 5 時間ローリングウィンドウあたり$10 の支
 - 自動増分更新（新しいデータのみ処理）
 - 最小限のメモリ使用量
 
+## 開発
+
+### Node.js用ビルド
+
+TypeScriptソースからNode.js互換バージョンを作成する場合：
+
+```bash
+# TypeScriptからJavaScriptバージョンをビルド
+npm run build
+
+# ビルド版をテスト
+./ccmonitor.js --version
+```
+
+### npm公開
+
+```bash
+# ビルドして公開（公開前に自動ビルド実行）
+npm publish
+
+# npmからのインストールをテスト
+npm install -g ccmonitor
+ccmonitor --version
+```
+
 ## コントリビューティング
 
 1. リポジトリをフォーク
 2. フィーチャーブランチを作成: `git checkout -b feature-name`
 3. 変更を加える
 4. 自分の Claude Code データで十分にテスト
-5. プルリクエストを提出
+5. `npm run build`でJavaScriptバージョンが動作することを確認
+6. プルリクエストを提出
 
 ## ライセンス
 

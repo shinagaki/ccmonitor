@@ -1,0 +1,31 @@
+{
+  "name": "ccmonitor",
+  "version": "3.0.0",
+  "description": "A command-line tool for monitoring Claude Code usage patterns with time-based analysis",
+  "main": "ccmonitor.js",
+  "bin": {
+    "ccmonitor": "./ccmonitor.js"
+  },
+  "scripts": {
+    "build": "node build.js",
+    "prepublishOnly": "npm run build"
+  },
+  "keywords": [
+    "claude",
+    "claude-code",
+    "usage",
+    "monitor",
+    "cli",
+    "analytics"
+  ],
+  "author": "shinagaki",
+  "license": "MIT",
+  "engines": {
+    "node": ">=16.0.0"
+  },
+  "files": [
+    "ccmonitor.js",
+    "README.md",
+    "LICENSE"
+  ]
+}

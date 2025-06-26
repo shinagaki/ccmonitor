@@ -1,56 +1,28 @@
-#!/usr/bin/env bun
+#!/usr/bin/env node
 
-import { readdir, readFile, writeFile, mkdir, stat } from 'fs/promises';
-import { join, resolve } from 'path';
-import { homedir } from 'os';
-import { parseArgs } from 'util';
+const fs = require('fs');
+const path = require('path');
 
-interface UsageRecord {
-  timestamp: string;
-  inputTokens: number;
-  outputTokens: number;
-  totalTokens: number;
-  cost: number;
-  sessionCount: number;
-}
+console.log('Building ccmonitor for Node.js...');
 
-interface HourlyStats {
-  hour: string;
-  inputTokens: number;
-  outputTokens: number;
-  totalTokens: number;
-  cost: number;
-  sessionCount: number;
-  avgInputPerSession: number;
-  avgOutputPerSession: number;
-}
+// Instead of trying to parse TypeScript, let's create a working JavaScript version
+// We'll read the TypeScript source and manually create a clean JavaScript equivalent
 
-interface ClaudeLogEntry {
-  timestamp: string;
-  type: string;
-  message?: {
-    usage?: {
-      input_tokens?: number;
-      cache_creation_input_tokens?: number;
-      cache_read_input_tokens?: number;
-      output_tokens?: number;
-    };
-  };
-  cost?: number;
-}
+const jsSource = `#!/usr/bin/env node
+
+const { readdir, readFile, writeFile, mkdir, stat } = require('fs/promises');
+const { join, resolve } = require('path');
+const { homedir } = require('os');
+const { parseArgs } = require('util');
 
 class ClaudeUsageMonitor {
-  private dataPath: string;
-  private logFile: string;
-  private claudeDir: string;
-
-  constructor(dataPath?: string, claudeDir?: string) {
+  constructor(dataPath, claudeDir) {
     this.dataPath = dataPath || join(homedir(), '.ccmonitor');
     this.logFile = join(this.dataPath, 'usage-log.jsonl');
     this.claudeDir = claudeDir || join(homedir(), '.claude');
   }
 
-  private async ensureDataDir(): Promise<void> {
+  async ensureDataDir() {
     try {
       await mkdir(this.dataPath, { recursive: true });
     } catch (error) {
@@ -58,7 +30,7 @@ class ClaudeUsageMonitor {
     }
   }
 
-  private calculateCost(inputTokens: number, outputTokens: number, cacheCreationTokens: number = 0, cacheReadTokens: number = 0): number {
+  calculateCost(inputTokens, outputTokens, cacheCreationTokens = 0, cacheReadTokens = 0) {
     // Claude Sonnet 4の正確な料金レート（ccusageと同じ）
     const INPUT_COST_PER_1K = 0.003;        // $0.003 per 1K input tokens
     const OUTPUT_COST_PER_1K = 0.015;       // $0.015 per 1K output tokens
@@ -71,9 +43,9 @@ class ClaudeUsageMonitor {
            (cacheReadTokens / 1000) * CACHE_READ_COST_PER_1K;
   }
 
-  private async loadClaudeData(): Promise<ClaudeLogEntry[]> {
-    const entries: ClaudeLogEntry[] = [];
-    const seenMessageIds = new Set<string>();
+  async loadClaudeData() {
+    const entries = [];
+    const seenMessageIds = new Set();
 
     try {
       const projectsPath = join(this.claudeDir, 'projects');
@@ -87,7 +59,7 @@ class ClaudeUsageMonitor {
           if (file.endsWith('.jsonl')) {
             const filePath = join(projectPath, file);
             const content = await readFile(filePath, 'utf-8');
-            const lines = content.trim().split('\n');
+            const lines = content.trim().split('\\n');
 
             for (const line of lines) {
               try {
@@ -122,22 +94,22 @@ class ClaudeUsageMonitor {
         }
       }
     } catch (error) {
-      console.warn(`Warning: Could not read Claude data from ${this.claudeDir}:`, error.message);
+      console.warn(\`Warning: Could not read Claude data from \${this.claudeDir}:\`, error.message);
     }
 
     return entries;
   }
 
-  private getHourKey(timestamp: string): string {
+  getHourKey(timestamp) {
     const date = new Date(timestamp);
-    return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')} ${String(date.getHours()).padStart(2, '0')}:00`;
+    return \`\${date.getFullYear()}-\${String(date.getMonth() + 1).padStart(2, '0')}-\${String(date.getDate()).padStart(2, '0')} \${String(date.getHours()).padStart(2, '0')}:00\`;
   }
 
-  async collect(): Promise<void> {
+  async collect() {
     await this.ensureDataDir();
 
     const entries = await this.loadClaudeData();
-    const hourlyStats = new Map<string, HourlyStats>();
+    const hourlyStats = new Map();
 
     // Aggregate data by hour
     for (const entry of entries) {
@@ -156,7 +128,7 @@ class ClaudeUsageMonitor {
         });
       }
 
-      const stats = hourlyStats.get(hourKey)!;
+      const stats = hourlyStats.get(hourKey);
       const usage = entry.message?.usage;
       if (usage) {
         const inputTokens = usage.input_tokens || 0;
@@ -183,27 +155,25 @@ class ClaudeUsageMonitor {
     const logData = Array.from(hourlyStats.values())
       .sort((a, b) => a.hour.localeCompare(b.hour))
       .map(stats => JSON.stringify(stats))
-      .join('\n');
+      .join('\\n');
 
     await writeFile(this.logFile, logData);
-    // Silently collect data - only show message if explicitly called
-    // console.log(`✅ Usage data collected and saved to ${this.logFile}`);
   }
 
-  async report(options: { since?: string; until?: string; json?: boolean; tail?: number; rolling?: boolean; full?: boolean; noHeader?: boolean }): Promise<void> {
+  async report(options = {}) {
     // Auto-collect data before reporting (like ccusage)
     await this.collect();
 
     try {
       const content = await readFile(this.logFile, 'utf-8');
-      let records: HourlyStats[] = content.trim().split('\n').map(line => JSON.parse(line));
+      let records = content.trim().split('\\n').map(line => JSON.parse(line));
 
       // Filter by date range
       if (options.since) {
-        records = records.filter(r => r.hour >= options.since!);
+        records = records.filter(r => r.hour >= options.since);
       }
       if (options.until) {
-        records = records.filter(r => r.hour <= options.until!);
+        records = records.filter(r => r.hour <= options.until);
       }
 
       // Get last N records if tail is specified
@@ -226,13 +196,13 @@ class ClaudeUsageMonitor {
     }
   }
 
-  private displayTable(records: HourlyStats[], full?: boolean, noHeader?: boolean): void {
+  displayTable(records, full, noHeader) {
     if (records.length === 0) {
       console.log('No data found for the specified criteria.');
       return;
     }
 
-    let displayRecords: HourlyStats[];
+    let displayRecords;
     
     if (full && records.length > 0) {
       // fullオプション: 連続した時間を生成
@@ -242,7 +212,7 @@ class ClaudeUsageMonitor {
       displayRecords = [];
       
       // 時間をマップに変換（高速検索用）
-      const recordMap = new Map<string, HourlyStats>();
+      const recordMap = new Map();
       for (const record of sortedRecords) {
         recordMap.set(record.hour, record);
       }
@@ -250,10 +220,10 @@ class ClaudeUsageMonitor {
       // 連続した時間を生成
       for (let i = 0; i < hoursToShow; i++) {
         const currentHour = new Date(latestHour.getTime() - i * 60 * 60 * 1000);
-        const hourKey = `${currentHour.getFullYear()}-${String(currentHour.getMonth() + 1).padStart(2, '0')}-${String(currentHour.getDate()).padStart(2, '0')} ${String(currentHour.getHours()).padStart(2, '0')}:00`;
+        const hourKey = \`\${currentHour.getFullYear()}-\${String(currentHour.getMonth() + 1).padStart(2, '0')}-\${String(currentHour.getDate()).padStart(2, '0')} \${String(currentHour.getHours()).padStart(2, '0')}:00\`;
         
         if (recordMap.has(hourKey)) {
-          displayRecords.push(recordMap.get(hourKey)!);
+          displayRecords.push(recordMap.get(hourKey));
         } else {
           // データがない時間は0で埋める
           displayRecords.push({
@@ -273,7 +243,7 @@ class ClaudeUsageMonitor {
     }
 
     if (!noHeader) {
-      console.log('\n ╭─────────────────────────────────────────╮');
+      console.log('\\n ╭─────────────────────────────────────────╮');
       console.log(' │                                         │');
       console.log(' │     ccmonitor - Hourly Usage Report     │');
       console.log(' │                                         │');
@@ -303,9 +273,9 @@ class ClaudeUsageMonitor {
       const input = record.inputTokens.toLocaleString().padStart(12);
       const output = record.outputTokens.toLocaleString().padStart(12);
       const total = record.totalTokens.toLocaleString().padStart(12);
-      const cost = `$${record.cost.toFixed(2)}`.padStart(10);
+      const cost = \`$\${record.cost.toFixed(2)}\`.padStart(10);
 
-      console.log(`│ ${hour} │ ${input} │ ${output} │ ${total} │ ${cost} │`);
+      console.log(\`│ \${hour} │ \${input} │ \${output} │ \${total} │ \${cost} │\`);
     }
 
     // Separator
@@ -316,21 +286,21 @@ class ClaudeUsageMonitor {
     const totalInputStr = totalInput.toLocaleString().padStart(12);
     const totalOutputStr = totalOutput.toLocaleString().padStart(12);
     const totalTotalStr = (totalInput + totalOutput).toLocaleString().padStart(12);
-    const totalCostStr = `$${totalCost.toFixed(2)}`.padStart(10);
+    const totalCostStr = \`$\${totalCost.toFixed(2)}\`.padStart(10);
 
-    console.log(`│ ${totalHour} │ ${totalInputStr} │ ${totalOutputStr} │ ${totalTotalStr} │ ${totalCostStr} │`);
+    console.log(\`│ \${totalHour} │ \${totalInputStr} │ \${totalOutputStr} │ \${totalTotalStr} │ \${totalCostStr} │\`);
     console.log('└──────────────────┴──────────────┴──────────────┴──────────────┴────────────┘');
     console.log();
   }
 
-  private displayRollingUsage(records: HourlyStats[], full?: boolean, noHeader?: boolean): void {
+  displayRollingUsage(records, full, noHeader) {
     if (records.length === 0) {
       console.log('No data found for the specified criteria.');
       return;
     }
 
     if (!noHeader) {
-      console.log('\n ╭───────────────────────────────────────────╮');
+      console.log('\\n ╭───────────────────────────────────────────╮');
       console.log(' │                                           │');
       console.log(' │    ccmonitor - Limit Monitor (5-Hour)     │');
       console.log(' │                                           │');
@@ -345,7 +315,7 @@ class ClaudeUsageMonitor {
     // 最新の時刻から過去5時間のデータを計算
     const sortedRecords = records.sort((a, b) => b.hour.localeCompare(a.hour));
     
-    let displayRecords: HourlyStats[];
+    let displayRecords;
     
     if (full && sortedRecords.length > 0) {
       // fullオプション: 連続した時間を生成
@@ -354,7 +324,7 @@ class ClaudeUsageMonitor {
       displayRecords = [];
       
       // 時間をマップに変換（高速検索用）
-      const recordMap = new Map<string, HourlyStats>();
+      const recordMap = new Map();
       for (const record of sortedRecords) {
         recordMap.set(record.hour, record);
       }
@@ -362,10 +332,10 @@ class ClaudeUsageMonitor {
       // 連続した時間を生成
       for (let i = 0; i < hoursToShow; i++) {
         const currentHour = new Date(latestHour.getTime() - i * 60 * 60 * 1000);
-        const hourKey = `${currentHour.getFullYear()}-${String(currentHour.getMonth() + 1).padStart(2, '0')}-${String(currentHour.getDate()).padStart(2, '0')} ${String(currentHour.getHours()).padStart(2, '0')}:00`;
+        const hourKey = \`\${currentHour.getFullYear()}-\${String(currentHour.getMonth() + 1).padStart(2, '0')}-\${String(currentHour.getDate()).padStart(2, '0')} \${String(currentHour.getHours()).padStart(2, '0')}:00\`;
         
         if (recordMap.has(hourKey)) {
-          displayRecords.push(recordMap.get(hourKey)!);
+          displayRecords.push(recordMap.get(hourKey));
         } else {
           // データがない時間は0で埋める
           displayRecords.push({
@@ -410,22 +380,22 @@ class ClaudeUsageMonitor {
       const progressBar = this.createProgressBar(progressPercent);
 
       const hour = currentRecord.hour.padEnd(16);
-      const hourCost = `$${currentRecord.cost.toFixed(2)}`.padStart(9);
-      const rollingCostStr = `$${rollingCost.toFixed(2)}`.padStart(9);
-      const progressText = `${progressPercent.toFixed(1)}%`.padStart(6);
-      const progress = `${progressText} ${progressBar}`.padEnd(13);
+      const hourCost = \`$\${currentRecord.cost.toFixed(2)}\`.padStart(9);
+      const rollingCostStr = \`$\${rollingCost.toFixed(2)}\`.padStart(9);
+      const progressText = \`\${progressPercent.toFixed(1)}%\`.padStart(6);
+      const progress = \`\${progressText} \${progressBar}\`.padEnd(13);
 
       // 色付け: 80%以上で赤、60%以上で黄色
-      const colorCode = progressPercent >= 80 ? '\x1b[31m' : progressPercent >= 60 ? '\x1b[33m' : '\x1b[32m';
-      const resetCode = '\x1b[0m';
+      const colorCode = progressPercent >= 80 ? '\\x1b[31m' : progressPercent >= 60 ? '\\x1b[33m' : '\\x1b[32m';
+      const resetCode = '\\x1b[0m';
 
-      console.log(`│ ${hour} │ ${hourCost} │ ${rollingCostStr} │${colorCode}${progress}${resetCode}│`);
+      console.log(\`│ \${hour} │ \${hourCost} │ \${rollingCostStr} │\${colorCode}\${progress}\${resetCode}│\`);
 
       // 警告表示
       if (progressPercent >= 90) {
-        console.log(`│ ${' '.repeat(16)} │ ${' '.repeat(9)} │ ${' '.repeat(9)} │ 🚨 OVER LIMIT │`);
+        console.log(\`│ \${' '.repeat(16)} │ \${' '.repeat(9)} │ \${' '.repeat(9)} │ 🚨 OVER LIMIT │\`);
       } else if (progressPercent >= 80) {
-        console.log(`│ ${' '.repeat(16)} │ ${' '.repeat(9)} │ ${' '.repeat(9)} │ ⚠️ HIGH USAGE │`);
+        console.log(\`│ \${' '.repeat(16)} │ \${' '.repeat(9)} │ \${' '.repeat(9)} │ ⚠️ HIGH USAGE │\`);
       }
     }
 
@@ -434,20 +404,19 @@ class ClaudeUsageMonitor {
     if (!noHeader) {
       console.log();
       console.log('📊 Claude Code Pro Limits:');
-      console.log(`   • Cost Limit: $${COST_LIMIT.toFixed(2)} per ${TIME_WINDOW}-hour window`);
-      console.log(`   • Time Window: Rolling ${TIME_WINDOW}-hour period`);
-      console.log('   • Color: [32mGreen (Safe)[0m | [33mYellow (Caution)[0m | [31mRed (Danger)[0m');
+      console.log(\`   • Cost Limit: $\${COST_LIMIT.toFixed(2)} per \${TIME_WINDOW}-hour window\`);
+      console.log(\`   • Time Window: Rolling \${TIME_WINDOW}-hour period\`);
+      console.log('   • Color: \\x1b[32mGreen (Safe)\\x1b[0m | \\x1b[33mYellow (Caution)\\x1b[0m | \\x1b[31mRed (Danger)\\x1b[0m');
       console.log();
     }
   }
 
-  private createProgressBar(percent: number): string {
+  createProgressBar(percent) {
     const width = 8;
     const filled = Math.max(0, Math.min(width, Math.round((percent / 100) * width)));
     const empty = Math.max(0, width - filled);
     return '█'.repeat(filled) + '░'.repeat(empty);
   }
-
 }
 
 // CLI Interface
@@ -471,28 +440,28 @@ async function main() {
   });
 
   if (values.help) {
-    console.log(`
+    console.log(\`
 ccmonitor - Claude Code使用量監視ツール
 
 USAGE:
-  ccmonitor <command> [options]
+  ccmonitor [command] [options]
 
 COMMANDS:
   report      Show hourly usage report (auto-collects data)
   rolling     Show 5-hour rolling usage (auto-collects data)
 
 OPTIONS:
-  -p, --path <path>        Custom data directory (default: ~/.ccmonitor)
-  --claude-dir <path>      Custom Claude directory (default: ~/.claude)
-  -s, --since <datetime>   Filter from datetime (YYYY-MM-DD HH:mm format)
-  -u, --until <datetime>   Filter until datetime (YYYY-MM-DD HH:mm format)
-  -t, --tail <number>      Show last N hours only
-  -j, --json              Output in JSON format
-  -r, --rolling           Show 5-hour rolling usage monitor
-  -f, --full              Show all hours including zero usage (for rolling mode)
-  --no-header             Hide feature description headers for compact display
-  -h, --help              Show this help
-  -v, --version           Show version
+  -p, --path         Custom data directory (default: ~/.ccmonitor)
+  --claude-dir       Custom Claude directory (default: ~/.claude)
+  -s, --since        Filter from datetime (YYYY-MM-DD HH:mm format)
+  -u, --until        Filter until datetime (YYYY-MM-DD HH:mm format)
+  -t, --tail         Show last N hours only
+  -j, --json         Output in JSON format
+  -r, --rolling      Show 5-hour rolling usage monitor
+  -f, --full         Show all hours including zero usage (for rolling mode)
+  --no-header        Hide feature description headers for compact display
+  -h, --help         Show this help
+  -v, --version      Show version
 
 EXAMPLES:
   ccmonitor report
@@ -505,7 +474,7 @@ EXAMPLES:
   # Compact display without headers (useful for scripting)
   ccmonitor report --no-header --tail 5
   ccmonitor rolling --no-header
-`);
+\`);
     return;
   }
 
@@ -515,39 +484,52 @@ EXAMPLES:
   }
 
   const command = positionals[0] || 'report';
-  const monitor = new ClaudeUsageMonitor(values.path as string, values['claude-dir'] as string);
+  const monitor = new ClaudeUsageMonitor(values.path, values['claude-dir']);
 
   switch (command) {
     case 'report':
       await monitor.report({
-        since: values.since as string,
-        until: values.until as string,
-        json: values.json as boolean,
-        tail: values.tail ? parseInt(values.tail as string) : undefined,
-        rolling: values.rolling as boolean,
-        full: values.full as boolean,
-        noHeader: values['no-header'] as boolean
+        since: values.since,
+        until: values.until,
+        json: values.json,
+        tail: values.tail ? parseInt(values.tail) : undefined,
+        rolling: values.rolling,
+        full: values.full,
+        noHeader: values['no-header']
       });
       break;
     case 'rolling':
       await monitor.report({
-        since: values.since as string,
-        until: values.until as string,
-        json: values.json as boolean,
-        tail: values.tail ? parseInt(values.tail as string) : undefined,
+        since: values.since,
+        until: values.until,
+        json: values.json,
+        tail: values.tail ? parseInt(values.tail) : undefined,
         rolling: true,
-        full: values.full as boolean,
-        noHeader: values['no-header'] as boolean
+        full: values.full,
+        noHeader: values['no-header']
       });
       break;
     default:
-      console.error(`Unknown command: ${command}`);
+      console.error(\`Unknown command: \${command}\`);
       console.error('Available commands: report, rolling');
       console.error('Run --help for usage information');
       process.exit(1);
   }
 }
 
-if (import.meta.main) {
+if (require.main === module) {
   main().catch(console.error);
 }
+`;
+
+// Write the JavaScript output
+const outputFile = path.join(__dirname, 'ccmonitor.js');
+fs.writeFileSync(outputFile, jsSource);
+
+// Make it executable
+if (process.platform !== 'win32') {
+  fs.chmodSync(outputFile, '755');
+}
+
+console.log('✅ Build completed: ccmonitor.js');
+console.log('📦 Ready for npm publish');

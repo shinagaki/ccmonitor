@@ -1,0 +1,9 @@
+*.ts
+build.js
+.git/
+.gitignore
+.DS_Store
+node_modules/
+*.log
+.env*
+*.md.backup

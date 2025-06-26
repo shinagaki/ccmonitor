@@ -12,7 +12,7 @@ Single TypeScript file (`ccmonitor.ts`) using Bun runtime with key components:
 - **ClaudeUsageMonitor class**: Main orchestrator handling data collection, aggregation, and reporting
 - **Data Processing Pipeline**: Reads JSONL files from `~/.claude/projects/`, deduplicates by message ID, and aggregates usage by hour
 - **Rolling Window Analysis**: Calculates 5-hour rolling totals for Pro limit monitoring
-- **Display Engines**: Two rendering modes - standard hourly reports and rolling usage monitors
+- **Display Engines**: Two rendering modes - standard hourly reports and rolling usage monitors with optional compact mode (`--no-header`)
 
 ## Essential Commands
 
@@ -63,6 +63,10 @@ bun ccmonitor.ts [command]
 
 # Show all hours including zero usage (rolling mode)
 ./ccmonitor rolling --full
+
+# Compact display without feature headers (useful for scripting)
+./ccmonitor report --no-header --tail 5
+./ccmonitor rolling --no-header
 ```
 
 ## Data Sources and Processing
@@ -88,6 +92,12 @@ The rolling usage monitor tracks Claude Code Pro's $10/5-hour limit with:
 
 ### Auto Data Collection
 Both `report` and `rolling` commands automatically collect the latest usage data before displaying results, eliminating the need for manual data collection steps. This matches ccusage behavior and provides a seamless user experience.
+
+### Compact Display Mode
+The `--no-header` option removes feature description headers while preserving table structure, making it ideal for:
+- Scripting and automation
+- Real-time monitoring with `watch` command
+- Space-constrained terminal displays
 
 ## Implementation Details
 
@@ -137,6 +147,10 @@ Matches ccusage tool pricing for Claude Sonnet 4:
 # Edge case testing
 ./ccmonitor report --since "invalid-date"  # Error handling
 ./ccmonitor report --tail 0               # Boundary conditions
+
+# Real-time monitoring integration
+watch -n 60 './ccmonitor rolling --no-header'     # Monitor Pro limits
+watch -n 30 './ccmonitor rolling --full --no-header'  # Full range monitoring
 ```
 
 ### Linting and Type Checking
