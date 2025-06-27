@@ -510,7 +510,7 @@ EXAMPLES:
   }
 
   if (values.version) {
-    console.log('ccmonitor v3.0.0');
+    console.log('ccmonitor v3.0.1');
     return;
   }
 
