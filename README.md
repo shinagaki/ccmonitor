@@ -87,46 +87,46 @@ ccmonitor rolling
 ### Hourly Reports
 ```bash
 # Basic hourly report
-./ccmonitor report
+npx ccmonitor report
 
 # Last 24 hours only
-./ccmonitor report --tail 24
+npx ccmonitor report --tail 24
 
 # Specific time range
-./ccmonitor report --since "2025-06-20 09:00" --until "2025-06-20 18:00"
+npx ccmonitor report --since "2025-06-20 09:00" --until "2025-06-20 18:00"
 
 # JSON output for scripting
-./ccmonitor report --json
+npx ccmonitor report --json
 
 # Show all hours including zero usage
-./ccmonitor report --full
+npx ccmonitor report --full
 
 # Compact display without feature headers (useful for scripting)
-./ccmonitor report --no-header --tail 5
+npx ccmonitor report --no-header --tail 5
 ```
 
 ### Rolling Usage Monitoring
 ```bash
 # Monitor Pro usage limits (5-hour rolling window)
-./ccmonitor rolling
+npx ccmonitor rolling
 
 # Include rolling view in report
-./ccmonitor report --rolling
+npx ccmonitor report --rolling
 
 # Compact rolling display for monitoring
-./ccmonitor rolling --no-header
+npx ccmonitor rolling --no-header
 ```
 
 ### Real-time Monitoring with `watch`
 ```bash
 # Monitor rolling usage every 60 seconds
-watch -n 60 './ccmonitor rolling --no-header'
+watch -n 60 'npx ccmonitor rolling --no-header'
 
 # Continuous monitoring with full time range
-watch -n 30 './ccmonitor rolling --full --no-header'
+watch -n 30 'npx ccmonitor rolling --full --no-header'
 
 # Watch recent usage patterns  
-watch -n 120 './ccmonitor report --no-header --tail 12'
+watch -n 120 'npx ccmonitor report --no-header --tail 12'
 ```
 
 ## Understanding the Output
@@ -201,7 +201,7 @@ Accurate pricing for Claude Sonnet 4:
 
 ### Report Command
 ```bash
-./ccmonitor report [options]
+npx ccmonitor report [options]
 ```
 
 **Options:**
@@ -214,7 +214,7 @@ Accurate pricing for Claude Sonnet 4:
 
 ### Rolling Command
 ```bash
-./ccmonitor rolling [options]
+npx ccmonitor rolling [options]
 ```
 
 **Options:**
@@ -261,10 +261,10 @@ Claude Code Pro has a $10 spending limit per 5-hour rolling window. The rolling 
 
 ```bash
 # Show detailed help
-./ccmonitor --help
+npx ccmonitor --help
 
 # Check version
-./ccmonitor --version
+npx ccmonitor --version
 ```
 
 ## Technical Details

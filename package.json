@@ -8,7 +8,10 @@
   },
   "scripts": {
     "build": "node build.js",
-    "prepublishOnly": "npm run build"
+    "prepublishOnly": "npm run build",
+    "release:patch": "npm version patch && git push && npm publish",
+    "release:minor": "npm version minor && git push && npm publish",
+    "release:major": "npm version major && git push && npm publish"
   },
   "keywords": [
     "claude",
