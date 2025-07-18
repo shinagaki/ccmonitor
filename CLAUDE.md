@@ -4,11 +4,18 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-ccmonitor is a command-line tool that analyzes Claude Code usage patterns by parsing JSONL log files. It provides historical reporting and real-time monitoring capabilities, with special focus on Claude Code Pro's usage limits ($10 per 5-hour rolling window).
+ccmonitor is a command-line tool that analyzes Claude Code usage patterns by parsing JSONL log files. It provides historical reporting and real-time monitoring capabilities, with special focus on Claude Code Pro's usage limits ($10 per 5-hour rolling window). As of v3.0.0, it supports both Node.js (via npm/npx) and Bun runtimes with dual distribution architecture.
 
 ## Architecture
 
-Single TypeScript file (`ccmonitor.ts`) using Bun runtime with key components:
+Dual-runtime architecture supporting both development and production deployment:
+
+### Source Files
+- **ccmonitor.ts**: TypeScript source (Bun runtime) - primary development version
+- **ccmonitor.js**: CommonJS build (Node.js runtime) - npm distribution version
+- **build.js**: Build system converting TypeScript to Node.js-compatible JavaScript
+
+### Core Components
 - **ClaudeUsageMonitor class**: Main orchestrator handling data collection, aggregation, and reporting
 - **Data Processing Pipeline**: Reads JSONL files from `~/.claude/projects/`, deduplicates by message ID, and aggregates usage by hour
 - **Rolling Window Analysis**: Calculates 5-hour rolling totals for Pro limit monitoring
@@ -18,24 +25,41 @@ Single TypeScript file (`ccmonitor.ts`) using Bun runtime with key components:
 
 ### Development Setup
 ```bash
-# Install Bun runtime (if not already installed)
+# For Node.js development
+npm install  # No dependencies, but sets up npm scripts
+
+# For Bun development (optional)
 curl -fsSL https://bun.sh/install | bash
-
-# Make executable (first time only)
 chmod +x ccmonitor.ts
+```
 
-# Run directly with Bun (alternative to chmod +x)
-bun ccmonitor.ts [command]
+### Build and Release
+```bash
+# Build JavaScript version for npm distribution
+npm run build
+
+# Release new versions (automatically builds, commits, pushes, and publishes to npm)
+npm run release:patch  # 3.0.1 → 3.0.2
+npm run release:minor  # 3.0.1 → 3.1.0  
+npm run release:major  # 3.0.1 → 4.0.0
 ```
 
 ### Testing and Verification
 ```bash
-# Test basic functionality
-./ccmonitor --help
-./ccmonitor --version
+# Test TypeScript version (development)
+./ccmonitor.ts --help
+./ccmonitor.ts --version
+
+# Test built JavaScript version (production)
+npm run build
+./ccmonitor.js --help
+./ccmonitor.js --version
+
+# Test npm distribution
+npx ccmonitor --version
 
 # Verify data collection works
-./ccmonitor report --json | head -5
+./ccmonitor.ts report --json | head -5
 ```
 
 ### Basic Usage
@@ -132,10 +156,11 @@ Matches ccusage tool pricing for Claude Sonnet 4:
 ## Development Guidelines
 
 ### Code Constraints
-- **Single File Architecture**: All functionality must remain in `ccmonitor.ts`
-- **Zero Dependencies**: Use only Node.js/Bun built-ins (fs, path, os, util)
-- **Self-Contained**: No package.json or build process required
-- **TypeScript**: Maintain strict typing throughout
+- **Dual-File Architecture**: Keep TypeScript source (`ccmonitor.ts`) and built JavaScript (`ccmonitor.js`) in sync
+- **Zero Runtime Dependencies**: Use only Node.js/Bun built-ins (fs, path, os, util)
+- **CommonJS Distribution**: Built version must be CommonJS-compatible for maximum npm compatibility
+- **TypeScript**: Maintain strict typing in source file
+- **Version Synchronization**: When updating versions, manually update both package.json and ccmonitor.ts version strings
 
 ### Testing Strategy
 ```bash
@@ -153,14 +178,25 @@ watch -n 60 './ccmonitor rolling --no-header'     # Monitor Pro limits
 watch -n 30 './ccmonitor rolling --full --no-header'  # Full range monitoring
 ```
 
+### Version Release Process
+Use the custom Claude Code command for streamlined releases:
+```bash
+# Update ccmonitor.ts version string manually, then use:
+/project:release patch   # For bug fixes
+/project:release minor   # For new features  
+/project:release major   # For breaking changes
+```
+
 ### Linting and Type Checking
-Since this is a TypeScript project, run type checking when making changes:
 ```bash
 # Type check with Bun (built-in TypeScript support)
 bun --check ccmonitor.ts
 
 # For stricter type checking during development
 bunx tsc --noEmit ccmonitor.ts
+
+# Validate build output
+npm run build && ./ccmonitor.js --version
 ```
 
 ### Debugging Commands

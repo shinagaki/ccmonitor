@@ -11,7 +11,7 @@ A command-line tool for monitoring Claude Code usage patterns with time-based an
 ## Features
 
 - 📊 **Hourly Usage Reports**: Track input/output tokens and costs by hour
-- 🔄 **Rolling Window Monitoring**: Monitor Claude Code Pro's $10/5-hour limits in real-time  
+- 🔄 **Rolling Window Monitoring**: Monitor Claude Code subscription plan limits in real-time (default: $10/5-hour for Pro)  
 - 🎯 **Accurate Cost Calculation**: Precise pricing for Claude Sonnet 4 including cache tokens
 - 📈 **Progress Visualization**: Color-coded progress bars for usage limits
 - ⚡ **Auto Data Collection**: Automatically scans and processes the latest Claude Code logs
@@ -107,11 +107,15 @@ npx ccmonitor report --no-header --tail 5
 
 ### Rolling Usage Monitoring
 ```bash
-# Monitor Pro usage limits (5-hour rolling window)
+# Monitor usage limits (5-hour rolling window, default: $10 Pro limit)
 npx ccmonitor rolling
 
+# Custom cost limits for different subscription plans
+npx ccmonitor rolling --cost-limit 50   # For Max $100 plan
+npx ccmonitor rolling --cost-limit 200  # For Max $200 plan
+
 # Include rolling view in report
-npx ccmonitor report --rolling
+npx ccmonitor report --rolling --cost-limit 50
 
 # Compact rolling display for monitoring
 npx ccmonitor rolling --no-header
@@ -210,6 +214,7 @@ npx ccmonitor report [options]
 - `--tail <hours>`: Show only last N hours
 - `--rolling`: Include rolling usage view
 - `--full`: Show all hours including zero usage
+- `--cost-limit <amount>`: Set custom cost limit for rolling view (default: 10)
 - `--json`: Output in JSON format
 
 ### Rolling Command
@@ -220,11 +225,17 @@ npx ccmonitor rolling [options]
 **Options:**
 - `--tail <hours>`: Show only last N hours
 - `--full`: Show all hours including zero usage
+- `--cost-limit <amount>`: Set custom cost limit (default: 10)
 - `--json`: Output in JSON format
 
-## Pro Usage Limits
+## Usage Limits
 
-Claude Code Pro has a $10 spending limit per 5-hour rolling window. The rolling monitor helps you:
+Claude Code subscription plans have spending limits per 5-hour rolling window (based on author's analysis). The rolling monitor helps you track these limits:
+
+- **Pro Plan**: $10/5-hour (default)
+- **Max Plans**: Custom limits can be set with `--cost-limit` option
+
+The monitor helps you:
 
 - ⚠️ **Track approaching limits** before hitting them
 - 📊 **Visualize usage patterns** throughout the day  
