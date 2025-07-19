@@ -6,7 +6,7 @@ const { homedir } = require('os');
 const { parseArgs } = require('util');
 
 // Version information from package.json
-const currentVersion = '3.2.1';
+const currentVersion = '3.2.2';
 
 class ClaudeUsageMonitor {
   constructor(dataPath, claudeDir) {
