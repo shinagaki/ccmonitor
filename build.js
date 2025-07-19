@@ -5,6 +5,10 @@ const path = require('path');
 
 console.log('Building ccmonitor for Node.js...');
 
+// Read package.json to get current version
+const packageJson = JSON.parse(fs.readFileSync(path.join(__dirname, 'package.json'), 'utf8'));
+const currentVersion = packageJson.version;
+
 // Instead of trying to parse TypeScript, let's create a working JavaScript version
 // We'll read the TypeScript source and manually create a clean JavaScript equivalent
 
@@ -14,6 +18,9 @@ const { readdir, readFile, writeFile, mkdir, stat } = require('fs/promises');
 const { join, resolve } = require('path');
 const { homedir } = require('os');
 const { parseArgs } = require('util');
+
+// Version information from package.json
+const currentVersion = '${currentVersion}';
 
 class ClaudeUsageMonitor {
   constructor(dataPath, claudeDir) {
@@ -479,7 +486,7 @@ EXAMPLES:
   }
 
   if (values.version) {
-    console.log('ccmonitor v3.0.0');
+    console.log(\`ccmonitor v\${currentVersion}\`);
     return;
   }
 

@@ -5,6 +5,9 @@ const { join, resolve } = require('path');
 const { homedir } = require('os');
 const { parseArgs } = require('util');
 
+// Version information from package.json
+const currentVersion = '3.2.0';
+
 class ClaudeUsageMonitor {
   constructor(dataPath, claudeDir) {
     this.dataPath = dataPath || join(homedir(), '.ccmonitor');
@@ -469,7 +472,7 @@ EXAMPLES:
   }
 
   if (values.version) {
-    console.log('ccmonitor v3.0.0');
+    console.log(`ccmonitor v${currentVersion}`);
     return;
   }
 

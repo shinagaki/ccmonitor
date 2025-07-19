@@ -516,7 +516,7 @@ EXAMPLES:
   }
 
   if (values.version) {
-    console.log('ccmonitor v3.1.0');
+    console.log('ccmonitor v3.2.0');
     return;
   }
 
