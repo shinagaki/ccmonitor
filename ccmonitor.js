@@ -6,7 +6,7 @@ const { homedir } = require('os');
 const { parseArgs } = require('util');
 
 // Version information from package.json
-const currentVersion = '3.2.0';
+const currentVersion = '3.2.1';
 
 class ClaudeUsageMonitor {
   constructor(dataPath, claudeDir) {
@@ -180,7 +180,7 @@ class ClaudeUsageMonitor {
       }
 
       if (options.rolling) {
-        this.displayRollingUsage(records, options.full, options.noHeader);
+        this.displayRollingUsage(records, options.full, options.noHeader, options.costLimit);
       } else {
         this.displayTable(records, options.full, options.noHeader);
       }
@@ -286,7 +286,7 @@ class ClaudeUsageMonitor {
     console.log();
   }
 
-  displayRollingUsage(records, full, noHeader) {
+  displayRollingUsage(records, full, noHeader, costLimit) {
     if (records.length === 0) {
       console.log('No data found for the specified criteria.');
       return;
@@ -301,8 +301,8 @@ class ClaudeUsageMonitor {
       console.log();
     }
 
-    // Claude Proの制限値
-    const COST_LIMIT = 10.0;  // $10
+    // Claude Proの制限値（動的設定可能）
+    const COST_LIMIT = costLimit || 10.0;  // Default: $10
     const TIME_WINDOW = 5;    // 5時間
 
     // 最新の時刻から過去5時間のデータを計算
@@ -396,7 +396,7 @@ class ClaudeUsageMonitor {
 
     if (!noHeader) {
       console.log();
-      console.log('📊 Claude Code Pro Limits:');
+      console.log('📊 Claude Code Limits:');
       console.log(`   • Cost Limit: $${COST_LIMIT.toFixed(2)} per ${TIME_WINDOW}-hour window`);
       console.log(`   • Time Window: Rolling ${TIME_WINDOW}-hour period`);
       console.log('   • Color: \x1b[32mGreen (Safe)\x1b[0m | \x1b[33mYellow (Caution)\x1b[0m | \x1b[31mRed (Danger)\x1b[0m');
@@ -427,7 +427,8 @@ async function main() {
       'version': { type: 'boolean', short: 'v' },
       'rolling': { type: 'boolean', short: 'r' },
       'full': { type: 'boolean', short: 'f' },
-      'no-header': { type: 'boolean' }
+      'no-header': { type: 'boolean' },
+      'cost-limit': { type: 'string' }
     },
     allowPositionals: true
   });
@@ -453,6 +454,7 @@ OPTIONS:
   -r, --rolling      Show 5-hour rolling usage monitor
   -f, --full         Show all hours including zero usage (for rolling mode)
   --no-header        Hide feature description headers for compact display
+  --cost-limit <amount>   Set custom cost limit for rolling usage monitor (default: 10)
   -h, --help         Show this help
   -v, --version      Show version
 
@@ -464,6 +466,10 @@ EXAMPLES:
   ccmonitor report --rolling --full
   ccmonitor report --json
   
+  # Custom cost limits for different plans
+  ccmonitor rolling --cost-limit 50   # For Max $100 plan
+  ccmonitor rolling --cost-limit 200  # For Max $200 plan
+  
   # Compact display without headers (useful for scripting)
   ccmonitor report --no-header --tail 5
   ccmonitor rolling --no-header
@@ -474,6 +480,17 @@ EXAMPLES:
   if (values.version) {
     console.log(`ccmonitor v${currentVersion}`);
     return;
+  }
+
+  // Validate --cost-limit option
+  let costLimit = 10.0; // Default value
+  if (values['cost-limit']) {
+    const parsedCostLimit = parseFloat(values['cost-limit']);
+    if (isNaN(parsedCostLimit) || parsedCostLimit <= 0 || parsedCostLimit > 10000) {
+      console.error('❌ Error: --cost-limit must be a number between 1 and 10000');
+      process.exit(1);
+    }
+    costLimit = parsedCostLimit;
   }
 
   const command = positionals[0] || 'report';
@@ -488,7 +505,8 @@ EXAMPLES:
         tail: values.tail ? parseInt(values.tail) : undefined,
         rolling: values.rolling,
         full: values.full,
-        noHeader: values['no-header']
+        noHeader: values['no-header'],
+        costLimit: costLimit
       });
       break;
     case 'rolling':
@@ -499,7 +517,8 @@ EXAMPLES:
         tail: values.tail ? parseInt(values.tail) : undefined,
         rolling: true,
         full: values.full,
-        noHeader: values['no-header']
+        noHeader: values['no-header'],
+        costLimit: costLimit
       });
       break;
     default:

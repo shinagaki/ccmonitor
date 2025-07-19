@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-ccmonitor is a command-line tool that analyzes Claude Code usage patterns by parsing JSONL log files. It provides historical reporting and real-time monitoring capabilities, with special focus on Claude Code Pro's usage limits ($10 per 5-hour rolling window). As of v3.0.0, it supports both Node.js (via npm/npx) and Bun runtimes with dual distribution architecture.
+ccmonitor is a command-line tool that analyzes Claude Code usage patterns by parsing JSONL log files. It provides historical reporting and real-time monitoring capabilities, with configurable cost limits for different Claude Code subscription plans. As of v3.0.0, it supports both Node.js (via npm/npx) and Bun runtimes with dual distribution architecture.
 
 ## Architecture
 
@@ -18,8 +18,9 @@ Dual-runtime architecture supporting both development and production deployment:
 ### Core Components
 - **ClaudeUsageMonitor class**: Main orchestrator handling data collection, aggregation, and reporting
 - **Data Processing Pipeline**: Reads JSONL files from `~/.claude/projects/`, deduplicates by message ID, and aggregates usage by hour
-- **Rolling Window Analysis**: Calculates 5-hour rolling totals for Pro limit monitoring
+- **Rolling Window Analysis**: Calculates 5-hour rolling totals with configurable cost limits
 - **Display Engines**: Two rendering modes - standard hourly reports and rolling usage monitors with optional compact mode (`--no-header`)
+- **Configurable Limits**: Support for custom cost limits via `--cost-limit` option for different subscription plans
 
 ## Essential Commands
 
@@ -88,6 +89,10 @@ npx ccmonitor --version
 # Show all hours including zero usage (rolling mode)
 ./ccmonitor rolling --full
 
+# Custom cost limits for different subscription plans
+./ccmonitor rolling --cost-limit 50   # For Max $100 plan
+./ccmonitor rolling --cost-limit 200  # For Max $200 plan
+
 # Compact display without feature headers (useful for scripting)
 ./ccmonitor report --no-header --tail 5
 ./ccmonitor rolling --no-header
@@ -107,11 +112,12 @@ npx ccmonitor --version
 ## Key Features
 
 ### Rolling Usage Monitor
-The rolling usage monitor tracks Claude Code Pro's $10/5-hour limit with:
+The rolling usage monitor tracks configurable cost limits (default: $10/5-hour) with:
 - Color-coded progress bars (green/yellow/red)
 - Hour-specific cost display alongside 5-hour rolling totals
 - Automatic alerts: "HIGH USAGE" at 80%, "OVER LIMIT" at 90%
 - Compact table format optimized for 3-digit percentages
+- **--cost-limit option**: Support for custom limits (Pro: $10, Max plans: $50-$200)
 - **--full option**: Display all hours including zero usage for complete time continuity analysis
 
 ### Auto Data Collection
@@ -143,7 +149,7 @@ Matches ccusage tool pricing for Claude Sonnet 4:
 
 ### Display Architecture
 - `displayTable()`: Standard hourly reports with ccusage-compatible formatting
-- `displayRollingUsage()`: Pro limit monitoring with progress visualization
+- `displayRollingUsage()`: Configurable limit monitoring with progress visualization (accepts costLimit parameter)
 - Both use consistent padding and alignment for clean terminal output
 
 ## Project Structure
@@ -160,7 +166,30 @@ Matches ccusage tool pricing for Claude Sonnet 4:
 - **Zero Runtime Dependencies**: Use only Node.js/Bun built-ins (fs, path, os, util)
 - **CommonJS Distribution**: Built version must be CommonJS-compatible for maximum npm compatibility
 - **TypeScript**: Maintain strict typing in source file
-- **Version Synchronization**: When updating versions, manually update both package.json and ccmonitor.ts version strings
+- **Version Synchronization**: build.js automatically reads version from package.json and injects it into generated JavaScript code. Only update package.json version for releases; ccmonitor.ts version must be manually synchronized.
+
+### Adding New Command-Line Options
+When adding new CLI options, you MUST update ALL THREE files:
+
+1. **ccmonitor.ts**: Add to parseArgs options and help text
+2. **build.js**: Add to parseArgs options, help text, validation logic, and method calls
+3. **Test both versions**: `./ccmonitor.ts --help` and `./ccmonitor.js --help`
+
+**Critical**: build.js does NOT automatically copy from ccmonitor.ts. Each change must be manually replicated.
+
+**CLI Option Addition Checklist:**
+- [ ] Add option to `parseArgs` options in ccmonitor.ts
+- [ ] Add option to `parseArgs` options in build.js  
+- [ ] Add option description to help text in ccmonitor.ts
+- [ ] Add option description to help text in build.js
+- [ ] Add validation logic in ccmonitor.ts (if needed)
+- [ ] Add validation logic in build.js (if needed)
+- [ ] Pass option to method calls in ccmonitor.ts
+- [ ] Pass option to method calls in build.js
+- [ ] Update method signatures to accept new parameter
+- [ ] Test: `./ccmonitor.ts --help`
+- [ ] Test: `npm run build && ./ccmonitor.js --help`
+- [ ] Test: Functionality works in both versions
 
 ### Testing Strategy
 ```bash
@@ -174,17 +203,23 @@ Matches ccusage tool pricing for Claude Sonnet 4:
 ./ccmonitor report --tail 0               # Boundary conditions
 
 # Real-time monitoring integration
-watch -n 60 './ccmonitor rolling --no-header'     # Monitor Pro limits
-watch -n 30 './ccmonitor rolling --full --no-header'  # Full range monitoring
+watch -n 60 './ccmonitor rolling --no-header'     # Monitor default limits
+watch -n 30 './ccmonitor rolling --full --no-header --cost-limit 50'  # Custom limit monitoring
+./ccmonitor rolling --cost-limit 200 --tail 12   # Test custom limits
 ```
 
 ### Version Release Process
-Use the custom Claude Code command for streamlined releases:
+Version synchronization is critical with dual-file architecture:
 ```bash
-# Update ccmonitor.ts version string manually, then use:
-/project:release patch   # For bug fixes
-/project:release minor   # For new features  
-/project:release major   # For breaking changes
+# Standard npm-based releases (automatically syncs package.json and builds)
+npm run release:patch  # For bug fixes (auto-increments version)
+npm run release:minor  # For new features
+npm run release:major  # For breaking changes
+
+# Manual version sync (if needed)
+# 1. Update package.json version
+# 2. Update ccmonitor.ts version string manually
+# 3. Run npm run build (automatically syncs to ccmonitor.js)
 ```
 
 ### Linting and Type Checking
