@@ -20,7 +20,7 @@ Claude Code の使用パターンを時系列分析するコマンドライン�
 
 ### 前提条件
 
-- Node.js 16+ がインストール済み
+- Node.js16+ がインストール済み
 - Claude Code がインストールされ使用済み（`~/.claude/projects/`にログが生成される）
 - オプション: 開発用の [Bun ランタイム](https://bun.sh/)（TypeScript 直接実行）
 
@@ -113,8 +113,8 @@ npx ccmonitor report --no-header --tail 5
 npx ccmonitor rolling
 
 # 異なるサブスクリプションプラン用のカスタム制限値
-npx ccmonitor rolling --cost-limit 50   # Max $100 プラン用
-npx ccmonitor rolling --cost-limit 200  # Max $200 プラン用
+npx ccmonitor rolling --cost-limit 50   # Max$100 プラン用
+npx ccmonitor rolling --cost-limit 200  # Max$200 プラン用
 
 # レポートにローリングビューを含める
 npx ccmonitor report --rolling --cost-limit 50
@@ -175,7 +175,7 @@ watch -n 120 'npx ccmonitor report --no-header --tail 12'
 │ 2025-06-20 17:00 │     $0.89 │     $9.12 │  91.0% ████████│
 └──────────────────┴───────────┴───────────┴───────────────┘
 
-📊 Claude Code Pro 制限:
+📊 Claude CodePro 制限:
    • コスト制限: 5 時間ウィンドウあたり$10.00
    • 時間ウィンドウ: ローリング 5 時間期間
    • 色分け: 緑（安全）| 黄（注意）| 赤（危険）
@@ -261,13 +261,13 @@ Claude Code サブスクリプションプランには 5 時間ローリング�
 
 ### よくある問題
 
-**"No Claude Code data found"**
+**"No Claude Codedata found"**
 
 - Claude Code がインストールされ使用されていることを確認
 - `~/.claude/projects/`が存在し JSONL ファイルが含まれていることを確認
 - ログファイルの読み取り権限を確認
 
-**"Bun command not found"**
+**"Buncommand not found"**
 
 - Bun をインストール: `curl -fsSL https://bun.sh/install | bash`
 - ターミナルを再起動するかシェルプロファイルをリロード
