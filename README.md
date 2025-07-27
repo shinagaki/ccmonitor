@@ -12,7 +12,7 @@ A command-line tool for monitoring Claude Code usage patterns with time-based an
 
 - 📊 **Hourly Usage Reports**: Track input/output tokens and costs by hour
 - 🔄 **Rolling Window Monitoring**: Monitor Claude Code subscription plan limits in real-time (default: $10/5-hour for Pro)  
-- 🎯 **Accurate Cost Calculation**: Precise pricing for Claude Sonnet 4 including cache tokens
+- 🎯 **Accurate Cost Calculation**: Model-specific pricing for Claude Sonnet 4, Opus 4, and Haiku 3.5
 - 📈 **Progress Visualization**: Color-coded progress bars for usage limits
 - ⚡ **Auto Data Collection**: Automatically scans and processes the latest Claude Code logs
 - 🔍 **Flexible Filtering**: Time range filtering and tail options
@@ -191,11 +191,12 @@ The tool automatically processes:
 
 ## Cost Calculation
 
-Accurate pricing for Claude Sonnet 4:
-- **Input tokens**: $0.003 per 1K tokens
-- **Output tokens**: $0.015 per 1K tokens
-- **Cache creation**: $0.0037 per 1K tokens
-- **Cache read**: $0.0003 per 1K tokens
+Model-specific pricing (per 1K tokens):
+- **Claude Sonnet 4**: Input $3, Output $15, Cache creation $3.75, Cache read $0.30
+- **Claude Opus 4**: Input $15, Output $75, Cache creation $18.75, Cache read $1.50  
+- **Claude Haiku 3.5**: Input $0.80, Output $4, Cache creation $1, Cache read $0.08
+
+Model detection is automatic from Claude Code logs.
 
 ## Command Reference
 
