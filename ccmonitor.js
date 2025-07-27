@@ -6,7 +6,7 @@ const { homedir } = require('os');
 const { parseArgs } = require('util');
 
 // Version information from package.json
-const currentVersion = '3.2.2';
+const currentVersion = '3.3.0';
 
 class ClaudeUsageMonitor {
   constructor(dataPath, claudeDir) {
@@ -23,17 +23,36 @@ class ClaudeUsageMonitor {
     }
   }
 
-  calculateCost(inputTokens, outputTokens, cacheCreationTokens = 0, cacheReadTokens = 0) {
-    // Claude Sonnet 4の正確な料金レート（ccusageと同じ）
-    const INPUT_COST_PER_1K = 0.003;        // $0.003 per 1K input tokens
-    const OUTPUT_COST_PER_1K = 0.015;       // $0.015 per 1K output tokens
-    const CACHE_CREATION_COST_PER_1K = 0.0037; // $0.0037 per 1K cache creation tokens
-    const CACHE_READ_COST_PER_1K = 0.0003;     // $0.0003 per 1K cache read tokens
+  calculateCost(inputTokens, outputTokens, cacheCreationTokens = 0, cacheReadTokens = 0, model = 'claude-sonnet-4-20250514') {
+    // モデル別の正確な料金レート（Anthropic 公式料金）
+    const pricingTable = {
+      'claude-sonnet-4-20250514': {
+        input: 0.003,        // $3 per million = $0.003 per 1K
+        output: 0.015,       // $15 per million = $0.015 per 1K
+        cacheCreation: 0.0037, // $3.75 per million = $0.0037 per 1K
+        cacheRead: 0.0003    // $0.30 per million = $0.0003 per 1K
+      },
+      'claude-opus-4-20250514': {
+        input: 0.015,        // $15 per million = $0.015 per 1K
+        output: 0.075,       // $75 per million = $0.075 per 1K
+        cacheCreation: 0.01875, // $18.75 per million = $0.01875 per 1K
+        cacheRead: 0.0015    // $1.50 per million = $0.0015 per 1K
+      },
+      'claude-haiku-3.5-20241022': {
+        input: 0.0008,       // $0.80 per million = $0.0008 per 1K
+        output: 0.004,       // $4 per million = $0.004 per 1K
+        cacheCreation: 0.001, // $1 per million = $0.001 per 1K
+        cacheRead: 0.00008   // $0.08 per million = $0.00008 per 1K
+      }
+    };
 
-    return (inputTokens / 1000) * INPUT_COST_PER_1K +
-           (outputTokens / 1000) * OUTPUT_COST_PER_1K +
-           (cacheCreationTokens / 1000) * CACHE_CREATION_COST_PER_1K +
-           (cacheReadTokens / 1000) * CACHE_READ_COST_PER_1K;
+    // デフォルトは Sonnet 4 の料金を使用
+    const pricing = pricingTable[model] || pricingTable['claude-sonnet-4-20250514'];
+
+    return (inputTokens / 1000) * pricing.input +
+           (outputTokens / 1000) * pricing.output +
+           (cacheCreationTokens / 1000) * pricing.cacheCreation +
+           (cacheReadTokens / 1000) * pricing.cacheRead;
   }
 
   async loadClaudeData() {
@@ -71,11 +90,12 @@ class ClaudeUsageMonitor {
                   const cacheReadTokens = usage.cache_read_input_tokens || 0;
 
                   if (inputTokens > 0 || outputTokens > 0 || cacheCreationTokens > 0 || cacheReadTokens > 0) {
+                    const model = entry.message.model || 'claude-sonnet-4-20250514';
                     entries.push({
                       timestamp: entry.timestamp,
                       type: entry.type,
                       message: entry.message,
-                      cost: this.calculateCost(inputTokens, outputTokens, cacheCreationTokens, cacheReadTokens)
+                      cost: this.calculateCost(inputTokens, outputTokens, cacheCreationTokens, cacheReadTokens, model)
                     });
                   }
                 }
@@ -129,7 +149,7 @@ class ClaudeUsageMonitor {
         const cacheCreationTokens = usage.cache_creation_input_tokens || 0;
         const cacheReadTokens = usage.cache_read_input_tokens || 0;
 
-        // Input tokensには通常のinput + cache creation + cache readを含める（表示用）
+        // Input tokens には通常の input + cache creation + cache read を含める（表示用）
         stats.inputTokens += inputTokens + cacheCreationTokens + cacheReadTokens;
         stats.outputTokens += outputTokens;
         stats.totalTokens += inputTokens + outputTokens + cacheCreationTokens + cacheReadTokens;
@@ -198,10 +218,10 @@ class ClaudeUsageMonitor {
     let displayRecords;
     
     if (full && records.length > 0) {
-      // fullオプション: 連続した時間を生成
+      // full オプション: 連続した時間を生成
       const sortedRecords = records.sort((a, b) => b.hour.localeCompare(a.hour));
       const latestHour = new Date(sortedRecords[0].hour + ':00');
-      const hoursToShow = 24; // 24時間分表示
+      const hoursToShow = 24; // 24 時間分表示
       displayRecords = [];
       
       // 時間をマップに変換（高速検索用）
@@ -218,7 +238,7 @@ class ClaudeUsageMonitor {
         if (recordMap.has(hourKey)) {
           displayRecords.push(recordMap.get(hourKey));
         } else {
-          // データがない時間は0で埋める
+          // データがない時間は 0 で埋める
           displayRecords.push({
             hour: hourKey,
             inputTokens: 0,
@@ -244,7 +264,7 @@ class ClaudeUsageMonitor {
       console.log();
     }
 
-    // ccusageスタイルの表
+    // ccusage スタイルの表
     const line1 = '┌──────────────────┬──────────────┬──────────────┬──────────────┬────────────┐';
     const line2 = '│ Hour             │        Input │       Output │        Total │ Cost (USD) │';
     const line3 = '├──────────────────┼──────────────┼──────────────┼──────────────┼────────────┤';
@@ -301,19 +321,19 @@ class ClaudeUsageMonitor {
       console.log();
     }
 
-    // Claude Proの制限値（動的設定可能）
+    // Claude Pro の制限値（動的設定可能）
     const COST_LIMIT = costLimit || 10.0;  // Default: $10
-    const TIME_WINDOW = 5;    // 5時間
+    const TIME_WINDOW = 5;    // 5 時間
 
-    // 最新の時刻から過去5時間のデータを計算
+    // 最新の時刻から過去 5 時間のデータを計算
     const sortedRecords = records.sort((a, b) => b.hour.localeCompare(a.hour));
     
     let displayRecords;
     
     if (full && sortedRecords.length > 0) {
-      // fullオプション: 連続した時間を生成
+      // full オプション: 連続した時間を生成
       const latestHour = new Date(sortedRecords[0].hour + ':00');
-      const hoursToShow = 24; // 24時間分表示
+      const hoursToShow = 24; // 24 時間分表示
       displayRecords = [];
       
       // 時間をマップに変換（高速検索用）
@@ -330,7 +350,7 @@ class ClaudeUsageMonitor {
         if (recordMap.has(hourKey)) {
           displayRecords.push(recordMap.get(hourKey));
         } else {
-          // データがない時間は0で埋める
+          // データがない時間は 0 で埋める
           displayRecords.push({
             hour: hourKey,
             inputTokens: 0,
@@ -355,7 +375,7 @@ class ClaudeUsageMonitor {
       const currentRecord = displayRecords[i];
       const currentHour = new Date(currentRecord.hour + ':00');
 
-      // 過去5時間のデータを収集
+      // 過去 5 時間のデータを収集
       let rollingCost = 0;
       let rollingTokens = 0;
 
@@ -378,7 +398,7 @@ class ClaudeUsageMonitor {
       const progressText = `${progressPercent.toFixed(1)}%`.padStart(6);
       const progress = `${progressText} ${progressBar}`.padEnd(13);
 
-      // 色付け: 80%以上で赤、60%以上で黄色
+      // 色付け: 80% 以上で赤、 60% 以上で黄色
       const colorCode = progressPercent >= 80 ? '\x1b[31m' : progressPercent >= 60 ? '\x1b[33m' : '\x1b[32m';
       const resetCode = '\x1b[0m';
 
@@ -435,7 +455,7 @@ async function main() {
 
   if (values.help) {
     console.log(`
-ccmonitor - Claude Code使用量監視ツール
+ccmonitor - Claude Code 使用量監視ツール
 
 USAGE:
   ccmonitor [command] [options]

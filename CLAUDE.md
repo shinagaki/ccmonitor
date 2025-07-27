@@ -102,11 +102,12 @@ npx ccmonitor --version
 
 - **Input**: JSONL files from `~/.claude/projects/*/` containing Claude Code session logs
 - **Deduplication**: Uses message ID to prevent counting the same response multiple times
-- **Cost Calculation**: Accurate pricing for Claude Sonnet 4 including cache tokens:
-  - Input tokens: $0.003/1K
-  - Output tokens: $0.015/1K  
-  - Cache creation: $0.0037/1K
-  - Cache read: $0.0003/1K
+- **Cost Calculation**: Accurate model-specific pricing based on Anthropic official rates:
+  - **Claude Sonnet 4**: Input $3/M, Output $15/M, Cache creation $3.75/M, Cache read $0.30/M
+  - **Claude Opus 4**: Input $15/M, Output $75/M, Cache creation $18.75/M, Cache read $1.50/M
+  - **Claude Haiku 3.5**: Input $0.80/M, Output $4/M, Cache creation $1/M, Cache read $0.08/M
+  - Model detection: Automatically reads model from JSONL logs (`message.model` field)
+  - Fallback: Defaults to Sonnet 4 pricing for unknown models
 - **Storage**: Aggregated data stored in `~/.ccmonitor/usage-log.jsonl`
 
 ## Key Features
@@ -141,11 +142,11 @@ seenMessageIds.add(entry.message.id);
 ```
 
 ### Cost Calculation Precision
-Matches ccusage tool pricing for Claude Sonnet 4:
-- Standard input: $0.003/1K tokens
-- Cache creation: $0.0037/1K tokens  
-- Cache read: $0.0003/1K tokens
-- Output: $0.015/1K tokens
+Dynamic model-specific pricing using Anthropic official rates:
+- **Model Detection**: Automatically extracts model from `entry.message.model` in JSONL logs
+- **Multi-Model Support**: Claude Sonnet 4, Opus 4, and Haiku 3.5 with accurate per-token pricing
+- **Pricing Table**: Centralized pricing configuration supporting input/output/cache creation/cache read tokens
+- **Fallback Strategy**: Unknown models default to Sonnet 4 pricing for compatibility
 
 ### Display Architecture
 - `displayTable()`: Standard hourly reports with ccusage-compatible formatting
