@@ -1,0 +1,55 @@
+#!/bin/bash
+
+# ccmonitor料金調査コマンド
+# Anthropic公式料金とccusageリポジトリの最新情報を調査
+
+echo "🔍 ccmonitor料金調査を開始します..."
+echo ""
+
+# Claude Codeでタスクエージェントを使用して料金調査
+claude --prompt "
+# ccmonitor料金調査タスク
+
+ccmonitorの現在の料金設定が最新かどうかを調査してください。
+
+## 調査対象
+1. **Anthropic公式料金** (https://docs.anthropic.com/claude/docs/models-overview)
+   - Claude Sonnet 4 (claude-sonnet-4-20250514)
+   - Claude Opus 4 (claude-opus-4-20250514) 
+   - Claude Haiku 3.5 (claude-haiku-3.5-20241022)
+
+2. **ccusageリポジトリ** (https://github.com/ryoppippi/ccusage)
+   - 最新のコミット履歴から料金関連の変更を確認
+   - PricingFetcher等の料金設定コードの現在の状態
+   - LiteLLMデータベースとの整合性
+
+## ccmonitorの現在の料金設定
+```
+Claude Sonnet 4:
+- Input: \$3.00/M tokens
+- Output: \$15.00/M tokens  
+- Cache Creation: \$3.75/M tokens
+- Cache Read: \$0.30/M tokens
+
+Claude Opus 4:
+- Input: \$15.00/M tokens
+- Output: \$75.00/M tokens
+- Cache Creation: \$18.75/M tokens  
+- Cache Read: \$1.50/M tokens
+
+Claude Haiku 3.5:
+- Input: \$0.80/M tokens
+- Output: \$4.00/M tokens
+- Cache Creation: \$1.00/M tokens
+- Cache Read: \$0.08/M tokens
+```
+
+## 求める情報
+1. 現在の料金設定が正確か（✅/❌で回答）
+2. 差異がある場合は具体的な修正が必要な料金レート
+3. ccusageの最新バージョンとの比較結果
+4. 今後の料金変更の可能性や注意点
+
+## 出力形式
+簡潔な調査結果サマリーを表形式で提示してください。
+" --task general-purpose
