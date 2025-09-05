@@ -10,11 +10,13 @@ Claude Code の使用パターンを時系列分析するコマンドライン�
 
 - 📊 **時間別使用量レポート**: 入力/出力トークンとコストを時間別に追跡
 - 🔄 **ローリングウィンドウ監視**: Claude Code サブスクリプションプランの制限をリアルタイム監視（デフォルト：Pro の$10/5 時間）
-- 🎯 **正確なコスト計算**: Claude Sonnet 4 、 Opus 4 、 Haiku 3.5 のモデル別料金
+- ⏰ **内蔵ウォッチモード**: Unix `watch` コマンドのようなスムーズな継続監視
+- 🎯 **正確なコスト計算**: Claude Sonnet 4、Opus 4、Haiku 3.5 のモデル別料金
 - 📈 **進捗の可視化**: 使用量制限に対するカラーコード付きプログレスバー
 - ⚡ **自動データ収集**: 最新の Claude Code ログを自動スキャン・処理
-- 🔍 **柔軟なフィルタリング**: 時間範囲フィルタリングと tail オプション
+- 🔍 **柔軟なフィルタリング**: 時間範囲フィルタリングと出力行制限（Unix `tail -n` 互換）
 - 🎛️ **コンパクト表示**: スクリプトや監視用の `--no-header` オプション
+- 📐 **ターミナル適応**: ウォッチモードでターミナルサイズに自動調整
 
 ## クイックスタート
 
@@ -123,9 +125,24 @@ npx ccmonitor report --rolling --cost-limit 50
 npx ccmonitor rolling --no-header
 ```
 
-### `watch` コマンドを使ったリアルタイム監視
+### 内蔵ウォッチモード（継続監視）
 ```bash
-# 60 秒ごとにローリング使用量を監視
+# デフォルト 60 秒間隔の継続監視
+npx ccmonitor rolling --watch
+
+# カスタム間隔での監視
+npx ccmonitor rolling --watch 30  # 30 秒ごと
+
+# コンパクトな継続監視
+npx ccmonitor rolling --watch --no-header --tail 5
+
+# カスタムコスト制限での監視
+npx ccmonitor rolling --watch --cost-limit 50 --tail 8
+```
+
+### 外部 `watch` コマンドを使った監視
+```bash
+# 代替方法：外部 watch を使用した 60 秒ごとのローリング使用量監視
 watch -n 60 'npx ccmonitor rolling --no-header'
 
 # フル時間範囲での継続監視

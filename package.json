@@ -8,6 +8,10 @@
   },
   "scripts": {
     "build": "node build.js",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:coverage": "vitest run --coverage",
+    "test:ui": "vitest --ui",
     "prepublishOnly": "npm run build",
     "release:patch": "npm version patch && git push && npm publish",
     "release:minor": "npm version minor && git push && npm publish",
@@ -30,5 +34,11 @@
     "ccmonitor.js",
     "README.md",
     "LICENSE"
-  ]
+  ],
+  "devDependencies": {
+    "vitest": "^1.1.0",
+    "@vitest/coverage-v8": "^1.1.0",
+    "@vitest/ui": "^1.1.0",
+    "@types/node": "^20.0.0"
+  }
 }

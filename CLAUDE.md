@@ -70,6 +70,12 @@ npx ccmonitor --version
 
 # Show 5-hour rolling usage for Pro limit monitoring (auto-collects data)
 ./ccmonitor rolling
+
+# Continuous monitoring (default 60-second updates)
+./ccmonitor rolling --watch
+
+# Quick continuous monitoring (every 10 seconds)
+./ccmonitor rolling --watch 10
 ```
 
 ### Advanced Options
@@ -96,6 +102,11 @@ npx ccmonitor --version
 # Compact display without feature headers (useful for scripting)
 ./ccmonitor report --no-header --tail 5
 ./ccmonitor rolling --no-header
+
+# Watch mode combinations
+./ccmonitor rolling --watch --full --tail 10           # All hours with terminal size limit
+./ccmonitor rolling --watch 30 --no-header             # Compact continuous monitoring
+./ccmonitor rolling --watch --cost-limit 50 --tail 8   # Custom limits with size control
 ```
 
 ## Data Sources and Processing
@@ -127,8 +138,35 @@ Both `report` and `rolling` commands automatically collect the latest usage data
 ### Compact Display Mode
 The `--no-header` option removes feature description headers while preserving table structure, making it ideal for:
 - Scripting and automation
-- Real-time monitoring with `watch` command
+- Real-time monitoring with built-in watch mode
 - Space-constrained terminal displays
+
+### Built-in Watch Mode
+The `--watch` option provides continuous monitoring similar to Unix `watch` command:
+- **Default Interval**: 60 seconds when no interval specified (`--watch`)
+- **Custom Intervals**: Specify seconds (`--watch 30` for 30-second updates)
+- **Terminal Size Aware**: Automatically adjusts display to fit terminal height
+- **Smooth Updates**: No screen flickering, cursor-controlled updates
+- **Output Line Limiting**: Respects `--tail` option for consistent display
+- **Buffered Output**: Prevents scrolling and cursor jumping
+
+#### Watch Mode Usage:
+```bash
+# Default 60-second monitoring
+ccmonitor rolling --watch
+
+# Custom 30-second updates with limit monitoring
+ccmonitor rolling --watch 30 --cost-limit 50
+
+# Compact continuous monitoring 
+ccmonitor rolling --watch --no-header --tail 5
+```
+
+### Output Line Control (Unix tail -n Compatible)
+The `--tail` option now uses output-line-based limiting (like Unix `tail -n`):
+- Counts actual displayed lines including OVER LIMIT/HIGH USAGE messages
+- Works consistently across both regular and watch modes
+- Automatic terminal size adjustment in watch mode
 
 ## Implementation Details
 
@@ -193,15 +231,54 @@ When adding new CLI options, you MUST update ALL THREE files:
 - [ ] Test: Functionality works in both versions
 
 ### Testing Strategy
+
+#### Automated Test Suite (Vitest)
+```bash
+# Install test dependencies
+npm install
+
+# Run all tests
+npm test
+
+# Run tests in watch mode (for development)
+npm run test:watch
+
+# Generate coverage report
+npm run test:coverage
+
+# Run tests with UI (browser-based)
+npm run test:ui
+```
+
+#### Test Categories
+- **Unit Tests** (`tests/unit/`): Pure functions (cost calculation, time utilities, deduplication)
+- **Integration Tests** (`tests/integration/`): Cache management, incremental loading, data consistency  
+- **Performance Tests** (`tests/performance/`): Optimization effectiveness, memory usage, scalability
+- **Mock Tests** (`tests/mocks/`): File I/O operations, CLI integration
+
+#### Test Coverage Focus Areas
+- **Cost Calculation**: All models (Sonnet 4, Opus 4, Haiku 3.5) with cache tokens, edge cases, precision
+- **Time Processing**: Hour boundaries, timezone handling, date range filtering, tail calculations
+- **Deduplication**: Message ID tracking, large-scale duplicate detection, cross-file scenarios
+- **Performance**: Large datasets (10K+ entries), incremental vs. full scan, watch mode efficiency
+- **Real-world Scenarios**: Multi-project structures, file modification tracking, concurrent access
+
+#### Manual Testing with Real Data
 ```bash
 # Manual testing with real data
 ./ccmonitor report --json | jq '.[0]'  # Verify JSON structure
 ./ccmonitor rolling --tail 5         # Test rolling calculations
 ./ccmonitor rolling --full --tail 10 # Test full mode with continuous hours
 
+# Watch mode testing
+timeout 10 ./ccmonitor rolling --watch 5 --tail 3    # Test watch mode with limits
+timeout 8 ./ccmonitor rolling --watch --no-header    # Test compact watch mode
+./ccmonitor rolling --watch                          # Test default 60-second interval
+
 # Edge case testing
 ./ccmonitor report --since "invalid-date"  # Error handling
 ./ccmonitor report --tail 0               # Boundary conditions
+./ccmonitor rolling --watch 2             # Should error (< 5 seconds)
 
 # Real-time monitoring integration
 watch -n 60 './ccmonitor rolling --no-header'     # Monitor default limits

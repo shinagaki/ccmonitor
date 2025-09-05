@@ -12,11 +12,13 @@ A command-line tool for monitoring Claude Code usage patterns with time-based an
 
 - 📊 **Hourly Usage Reports**: Track input/output tokens and costs by hour
 - 🔄 **Rolling Window Monitoring**: Monitor Claude Code subscription plan limits in real-time (default: $10/5-hour for Pro)  
+- ⏰ **Built-in Watch Mode**: Continuous monitoring with smooth updates (like Unix `watch` command)
 - 🎯 **Accurate Cost Calculation**: Model-specific pricing for Claude Sonnet 4, Opus 4, and Haiku 3.5
 - 📈 **Progress Visualization**: Color-coded progress bars for usage limits
 - ⚡ **Auto Data Collection**: Automatically scans and processes the latest Claude Code logs
-- 🔍 **Flexible Filtering**: Time range filtering and tail options
+- 🔍 **Flexible Filtering**: Time range filtering and output line limiting (Unix `tail -n` compatible)
 - 🎛️ **Compact Display**: `--no-header` option for scripting and monitoring
+- 📐 **Terminal Adaptive**: Automatically adjusts display to terminal size in watch mode
 
 ## Quick Start
 
@@ -121,9 +123,24 @@ npx ccmonitor report --rolling --cost-limit 50
 npx ccmonitor rolling --no-header
 ```
 
-### Real-time Monitoring with `watch`
+### Built-in Watch Mode (Continuous Monitoring)
 ```bash
-# Monitor rolling usage every 60 seconds
+# Default 60-second continuous monitoring
+npx ccmonitor rolling --watch
+
+# Custom interval monitoring 
+npx ccmonitor rolling --watch 30  # Every 30 seconds
+
+# Compact continuous monitoring
+npx ccmonitor rolling --watch --no-header --tail 5
+
+# Monitor custom cost limits
+npx ccmonitor rolling --watch --cost-limit 50 --tail 8
+```
+
+### External Monitoring with `watch` command
+```bash
+# Alternative: Monitor rolling usage every 60 seconds with external watch
 watch -n 60 'npx ccmonitor rolling --no-header'
 
 # Continuous monitoring with full time range

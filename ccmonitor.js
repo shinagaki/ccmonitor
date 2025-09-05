@@ -448,7 +448,8 @@ async function main() {
       'rolling': { type: 'boolean', short: 'r' },
       'full': { type: 'boolean', short: 'f' },
       'no-header': { type: 'boolean' },
-      'cost-limit': { type: 'string' }
+      'cost-limit': { type: 'string' },
+      'watch': { type: 'string' }
     },
     allowPositionals: true
   });
