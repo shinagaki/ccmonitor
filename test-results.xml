@@ -1,49 +1,49 @@
 <?xml version="1.0" encoding="UTF-8" ?>
-<testsuites name="vitest tests" tests="107" failures="15" errors="0" time="14.067">
-    <testsuite name="tests/mocks/file-system.test.ts" timestamp="2025-09-06T03:23:00.076Z" hostname="nagoya" tests="16" failures="0" errors="0" skipped="0" time="0.052">
-        <testcase classname="tests/mocks/file-system.test.ts" name="File System Operations &gt; Claude Projects Directory Scanning &gt; should discover JSONL files in Claude projects" time="0.004">
+<testsuites name="vitest tests" tests="105" failures="0" errors="0" time="90.405">
+    <testsuite name="tests/mocks/file-system.test.ts" timestamp="2025-09-06T03:36:10.429Z" hostname="nagoya" tests="16" failures="0" errors="0" skipped="0" time="0.075">
+        <testcase classname="tests/mocks/file-system.test.ts" name="File System Operations &gt; Claude Projects Directory Scanning &gt; should discover JSONL files in Claude projects" time="0.015">
         </testcase>
         <testcase classname="tests/mocks/file-system.test.ts" name="File System Operations &gt; Claude Projects Directory Scanning &gt; should ignore non-JSONL files" time="0.001">
         </testcase>
         <testcase classname="tests/mocks/file-system.test.ts" name="File System Operations &gt; Claude Projects Directory Scanning &gt; should handle empty projects directory" time="0">
         </testcase>
-        <testcase classname="tests/mocks/file-system.test.ts" name="File System Operations &gt; Claude Projects Directory Scanning &gt; should handle missing projects directory gracefully" time="0">
+        <testcase classname="tests/mocks/file-system.test.ts" name="File System Operations &gt; Claude Projects Directory Scanning &gt; should handle missing projects directory gracefully" time="0.001">
         </testcase>
         <testcase classname="tests/mocks/file-system.test.ts" name="File System Operations &gt; Incremental File Processing &gt; should process only modified files" time="0.001">
         </testcase>
-        <testcase classname="tests/mocks/file-system.test.ts" name="File System Operations &gt; Incremental File Processing &gt; should skip all files when no modifications since last scan" time="0">
+        <testcase classname="tests/mocks/file-system.test.ts" name="File System Operations &gt; Incremental File Processing &gt; should skip all files when no modifications since last scan" time="0.001">
         </testcase>
-        <testcase classname="tests/mocks/file-system.test.ts" name="File System Operations &gt; Incremental File Processing &gt; should handle malformed JSONL files gracefully" time="0.002">
+        <testcase classname="tests/mocks/file-system.test.ts" name="File System Operations &gt; Incremental File Processing &gt; should handle malformed JSONL files gracefully" time="0">
         </testcase>
-        <testcase classname="tests/mocks/file-system.test.ts" name="File System Operations &gt; Data Persistence &gt; should save and load aggregated data correctly" time="0.002">
+        <testcase classname="tests/mocks/file-system.test.ts" name="File System Operations &gt; Data Persistence &gt; should save and load aggregated data correctly" time="0.001">
         </testcase>
-        <testcase classname="tests/mocks/file-system.test.ts" name="File System Operations &gt; Data Persistence &gt; should handle missing aggregated data file" time="0.002">
+        <testcase classname="tests/mocks/file-system.test.ts" name="File System Operations &gt; Data Persistence &gt; should handle missing aggregated data file" time="0.001">
         </testcase>
         <testcase classname="tests/mocks/file-system.test.ts" name="File System Operations &gt; Data Persistence &gt; should handle corrupted aggregated data file" time="0">
         </testcase>
-        <testcase classname="tests/mocks/file-system.test.ts" name="File System Operations &gt; Real-world Usage Scenarios &gt; should handle typical Claude Code project structure" time="0.016">
+        <testcase classname="tests/mocks/file-system.test.ts" name="File System Operations &gt; Real-world Usage Scenarios &gt; should handle typical Claude Code project structure" time="0.023">
         </testcase>
-        <testcase classname="tests/mocks/file-system.test.ts" name="File System Operations &gt; Real-world Usage Scenarios &gt; should demonstrate performance with large file counts" time="0.017">
+        <testcase classname="tests/mocks/file-system.test.ts" name="File System Operations &gt; Real-world Usage Scenarios &gt; should demonstrate performance with large file counts" time="0.021">
             <system-out>
-Processed 200 files with 1000 entries in 7.62ms
+Processed 200 files with 1000 entries in 9.04ms
 
             </system-out>
         </testcase>
-        <testcase classname="tests/mocks/file-system.test.ts" name="File System Operations &gt; Real-world Usage Scenarios &gt; should handle mixed file modification scenarios" time="0.002">
+        <testcase classname="tests/mocks/file-system.test.ts" name="File System Operations &gt; Real-world Usage Scenarios &gt; should handle mixed file modification scenarios" time="0.004">
         </testcase>
         <testcase classname="tests/mocks/file-system.test.ts" name="File System Operations &gt; Error Handling and Edge Cases &gt; should handle permission errors gracefully" time="0">
         </testcase>
-        <testcase classname="tests/mocks/file-system.test.ts" name="File System Operations &gt; Error Handling and Edge Cases &gt; should handle file system limits" time="0.001">
+        <testcase classname="tests/mocks/file-system.test.ts" name="File System Operations &gt; Error Handling and Edge Cases &gt; should handle file system limits" time="0">
         </testcase>
         <testcase classname="tests/mocks/file-system.test.ts" name="File System Operations &gt; Error Handling and Edge Cases &gt; should handle concurrent access simulation" time="0.001">
         </testcase>
     </testsuite>
-    <testsuite name="tests/integration/cache-management.test.ts" timestamp="2025-09-06T03:23:00.093Z" hostname="nagoya" tests="13" failures="0" errors="0" skipped="0" time="0.039">
-        <testcase classname="tests/integration/cache-management.test.ts" name="Cache Management Integration &gt; Cache Initialization &gt; should initialize empty cache when no persistent data exists" time="0.003">
+    <testsuite name="tests/integration/cache-management.test.ts" timestamp="2025-09-06T03:36:10.469Z" hostname="nagoya" tests="13" failures="0" errors="0" skipped="0" time="0.021">
+        <testcase classname="tests/integration/cache-management.test.ts" name="Cache Management Integration &gt; Cache Initialization &gt; should initialize empty cache when no persistent data exists" time="0.002">
         </testcase>
         <testcase classname="tests/integration/cache-management.test.ts" name="Cache Management Integration &gt; Cache Initialization &gt; should load existing persistent data into cache" time="0.001">
         </testcase>
-        <testcase classname="tests/integration/cache-management.test.ts" name="Cache Management Integration &gt; Cache Initialization &gt; should initialize seen message IDs from Claude logs" time="0.017">
+        <testcase classname="tests/integration/cache-management.test.ts" name="Cache Management Integration &gt; Cache Initialization &gt; should initialize seen message IDs from Claude logs" time="0.001">
         </testcase>
         <testcase classname="tests/integration/cache-management.test.ts" name="Cache Management Integration &gt; Incremental Collection &gt; should process new entries and update cache" time="0.001">
         </testcase>
@@ -51,196 +51,69 @@ Processed 200 files with 1000 entries in 7.62ms
         </testcase>
         <testcase classname="tests/integration/cache-management.test.ts" name="Cache Management Integration &gt; Incremental Collection &gt; should aggregate data across multiple hours" time="0.001">
         </testcase>
-        <testcase classname="tests/integration/cache-management.test.ts" name="Cache Management Integration &gt; Cache Persistence &gt; should persist cache data to storage" time="0.003">
+        <testcase classname="tests/integration/cache-management.test.ts" name="Cache Management Integration &gt; Cache Persistence &gt; should persist cache data to storage" time="0.001">
         </testcase>
         <testcase classname="tests/integration/cache-management.test.ts" name="Cache Management Integration &gt; Cache Persistence &gt; should maintain cache consistency across multiple operations" time="0">
         </testcase>
-        <testcase classname="tests/integration/cache-management.test.ts" name="Cache Management Integration &gt; Performance and Memory &gt; should handle large cache efficiently" time="0.005">
+        <testcase classname="tests/integration/cache-management.test.ts" name="Cache Management Integration &gt; Performance and Memory &gt; should handle large cache efficiently" time="0.008">
         </testcase>
         <testcase classname="tests/integration/cache-management.test.ts" name="Cache Management Integration &gt; Performance and Memory &gt; should handle cache reinitialization correctly" time="0.001">
         </testcase>
-        <testcase classname="tests/integration/cache-management.test.ts" name="Cache Management Integration &gt; Error Handling &gt; should handle corrupted persistent data gracefully" time="0.001">
+        <testcase classname="tests/integration/cache-management.test.ts" name="Cache Management Integration &gt; Error Handling &gt; should handle corrupted persistent data gracefully" time="0.002">
         </testcase>
         <testcase classname="tests/integration/cache-management.test.ts" name="Cache Management Integration &gt; Error Handling &gt; should handle missing Claude log files gracefully" time="0.001">
         </testcase>
         <testcase classname="tests/integration/cache-management.test.ts" name="Cache Management Integration &gt; Error Handling &gt; should handle malformed log entries" time="0">
         </testcase>
     </testsuite>
-    <testsuite name="tests/integration/option-combinations.test.ts" timestamp="2025-09-06T03:23:00.104Z" hostname="nagoya" tests="15" failures="15" errors="0" skipped="0" time="0.146">
-        <testcase classname="tests/integration/option-combinations.test.ts" name="Option Combinations Integration Tests &gt; High Priority Missing Tests - Report Command &gt; should handle report --rolling --cost-limit combination" time="0.041">
-            <failure message="ClaudeUsageMonitor is not a constructor" type="TypeError">
-TypeError: ClaudeUsageMonitor is not a constructor
- ❯ tests/integration/option-combinations.test.ts:45:15
-            </failure>
+    <testsuite name="tests/integration/option-combinations.test.ts" timestamp="2025-09-06T03:36:10.490Z" hostname="nagoya" tests="13" failures="0" errors="0" skipped="0" time="78.112">
+        <testcase classname="tests/integration/option-combinations.test.ts" name="Option Combinations Integration Tests &gt; High Priority Missing Tests - Report Command &gt; should handle report --full --since time filter" time="6.225">
         </testcase>
-        <testcase classname="tests/integration/option-combinations.test.ts" name="Option Combinations Integration Tests &gt; High Priority Missing Tests - Report Command &gt; should handle report --full --since time filter" time="0.005">
-            <failure message="ClaudeUsageMonitor is not a constructor" type="TypeError">
-TypeError: ClaudeUsageMonitor is not a constructor
- ❯ tests/integration/option-combinations.test.ts:45:15
-            </failure>
+        <testcase classname="tests/integration/option-combinations.test.ts" name="Option Combinations Integration Tests &gt; High Priority Missing Tests - Report Command &gt; should handle report --json --tail combination" time="6.091">
         </testcase>
-        <testcase classname="tests/integration/option-combinations.test.ts" name="Option Combinations Integration Tests &gt; High Priority Missing Tests - Report Command &gt; should handle report --json --tail combination" time="0.006">
-            <failure message="ClaudeUsageMonitor is not a constructor" type="TypeError">
-TypeError: ClaudeUsageMonitor is not a constructor
- ❯ tests/integration/option-combinations.test.ts:45:15
-            </failure>
+        <testcase classname="tests/integration/option-combinations.test.ts" name="Option Combinations Integration Tests &gt; High Priority Missing Tests - Rolling Command &gt; should handle rolling --json --tail combination" time="5.887">
         </testcase>
-        <testcase classname="tests/integration/option-combinations.test.ts" name="Option Combinations Integration Tests &gt; High Priority Missing Tests - Rolling Command &gt; should handle rolling --json --tail combination" time="0.005">
-            <failure message="ClaudeUsageMonitor is not a constructor" type="TypeError">
-TypeError: ClaudeUsageMonitor is not a constructor
- ❯ tests/integration/option-combinations.test.ts:45:15
-            </failure>
+        <testcase classname="tests/integration/option-combinations.test.ts" name="Option Combinations Integration Tests &gt; High Priority Missing Tests - Rolling Command &gt; should handle rolling --cost-limit --full combination" time="6.029">
         </testcase>
-        <testcase classname="tests/integration/option-combinations.test.ts" name="Option Combinations Integration Tests &gt; High Priority Missing Tests - Rolling Command &gt; should handle rolling --cost-limit --full combination" time="0.006">
-            <failure message="ClaudeUsageMonitor is not a constructor" type="TypeError">
-TypeError: ClaudeUsageMonitor is not a constructor
- ❯ tests/integration/option-combinations.test.ts:45:15
-            </failure>
+        <testcase classname="tests/integration/option-combinations.test.ts" name="Option Combinations Integration Tests &gt; High Priority Missing Tests - Rolling Command &gt; should handle rolling --cost-limit --tail combination" time="5.993">
         </testcase>
-        <testcase classname="tests/integration/option-combinations.test.ts" name="Option Combinations Integration Tests &gt; High Priority Missing Tests - Rolling Command &gt; should handle rolling --cost-limit --tail combination" time="0.006">
-            <failure message="ClaudeUsageMonitor is not a constructor" type="TypeError">
-TypeError: ClaudeUsageMonitor is not a constructor
- ❯ tests/integration/option-combinations.test.ts:45:15
-            </failure>
+        <testcase classname="tests/integration/option-combinations.test.ts" name="Option Combinations Integration Tests &gt; Medium Priority Tests - Header Options &gt; should handle report --no-header --tail combination" time="5.971">
         </testcase>
-        <testcase classname="tests/integration/option-combinations.test.ts" name="Option Combinations Integration Tests &gt; Medium Priority Tests - Header Options &gt; should handle report --no-header --tail combination" time="0.013">
-            <failure message="ClaudeUsageMonitor is not a constructor" type="TypeError">
-TypeError: ClaudeUsageMonitor is not a constructor
- ❯ tests/integration/option-combinations.test.ts:45:15
-            </failure>
+        <testcase classname="tests/integration/option-combinations.test.ts" name="Option Combinations Integration Tests &gt; Medium Priority Tests - Header Options &gt; should handle rolling --no-header --cost-limit combination" time="5.892">
         </testcase>
-        <testcase classname="tests/integration/option-combinations.test.ts" name="Option Combinations Integration Tests &gt; Medium Priority Tests - Header Options &gt; should handle rolling --no-header --cost-limit combination" time="0.014">
-            <failure message="ClaudeUsageMonitor is not a constructor" type="TypeError">
-TypeError: ClaudeUsageMonitor is not a constructor
- ❯ tests/integration/option-combinations.test.ts:45:15
-            </failure>
+        <testcase classname="tests/integration/option-combinations.test.ts" name="Option Combinations Integration Tests &gt; Time Filter Edge Cases &gt; should handle report --since --until --full combination" time="5.965">
         </testcase>
-        <testcase classname="tests/integration/option-combinations.test.ts" name="Option Combinations Integration Tests &gt; Time Filter Edge Cases &gt; should handle report --since --until --full combination" time="0.007">
-            <failure message="ClaudeUsageMonitor is not a constructor" type="TypeError">
-TypeError: ClaudeUsageMonitor is not a constructor
- ❯ tests/integration/option-combinations.test.ts:45:15
-            </failure>
+        <testcase classname="tests/integration/option-combinations.test.ts" name="Option Combinations Integration Tests &gt; Time Filter Edge Cases &gt; should handle rolling --since --until --cost-limit combination" time="5.958">
         </testcase>
-        <testcase classname="tests/integration/option-combinations.test.ts" name="Option Combinations Integration Tests &gt; Time Filter Edge Cases &gt; should handle rolling --since --until --cost-limit combination" time="0.008">
-            <failure message="ClaudeUsageMonitor is not a constructor" type="TypeError">
-TypeError: ClaudeUsageMonitor is not a constructor
- ❯ tests/integration/option-combinations.test.ts:45:15
-            </failure>
+        <testcase classname="tests/integration/option-combinations.test.ts" name="Option Combinations Integration Tests &gt; Complex Multi-Option Combinations &gt; should handle rolling --full --no-header --cost-limit --since" time="5.975">
         </testcase>
-        <testcase classname="tests/integration/option-combinations.test.ts" name="Option Combinations Integration Tests &gt; Complex Multi-Option Combinations &gt; should handle report --rolling --json --cost-limit --tail" time="0.008">
-            <failure message="ClaudeUsageMonitor is not a constructor" type="TypeError">
-TypeError: ClaudeUsageMonitor is not a constructor
- ❯ tests/integration/option-combinations.test.ts:45:15
-            </failure>
+        <testcase classname="tests/integration/option-combinations.test.ts" name="Option Combinations Integration Tests &gt; Validation and Error Handling &gt; should handle invalid time format gracefully" time="6.045">
         </testcase>
-        <testcase classname="tests/integration/option-combinations.test.ts" name="Option Combinations Integration Tests &gt; Complex Multi-Option Combinations &gt; should handle rolling --full --no-header --cost-limit --since" time="0.009">
-            <failure message="ClaudeUsageMonitor is not a constructor" type="TypeError">
-TypeError: ClaudeUsageMonitor is not a constructor
- ❯ tests/integration/option-combinations.test.ts:45:15
-            </failure>
+        <testcase classname="tests/integration/option-combinations.test.ts" name="Option Combinations Integration Tests &gt; Validation and Error Handling &gt; should handle zero tail value appropriately" time="6.066">
         </testcase>
-        <testcase classname="tests/integration/option-combinations.test.ts" name="Option Combinations Integration Tests &gt; Validation and Error Handling &gt; should handle invalid time format gracefully" time="0.006">
-            <failure message="ClaudeUsageMonitor is not a constructor" type="TypeError">
-TypeError: ClaudeUsageMonitor is not a constructor
- ❯ tests/integration/option-combinations.test.ts:45:15
-            </failure>
-        </testcase>
-        <testcase classname="tests/integration/option-combinations.test.ts" name="Option Combinations Integration Tests &gt; Validation and Error Handling &gt; should handle zero tail value appropriately" time="0.006">
-            <failure message="ClaudeUsageMonitor is not a constructor" type="TypeError">
-TypeError: ClaudeUsageMonitor is not a constructor
- ❯ tests/integration/option-combinations.test.ts:45:15
-            </failure>
-        </testcase>
-        <testcase classname="tests/integration/option-combinations.test.ts" name="Option Combinations Integration Tests &gt; Validation and Error Handling &gt; should handle very large cost-limit values" time="0.005">
-            <failure message="ClaudeUsageMonitor is not a constructor" type="TypeError">
-TypeError: ClaudeUsageMonitor is not a constructor
- ❯ tests/integration/option-combinations.test.ts:45:15
-            </failure>
+        <testcase classname="tests/integration/option-combinations.test.ts" name="Option Combinations Integration Tests &gt; Validation and Error Handling &gt; should handle very large cost-limit values" time="6.013">
         </testcase>
     </testsuite>
-    <testsuite name="tests/performance/optimization-performance.test.ts" timestamp="2025-09-06T03:23:00.180Z" hostname="nagoya" tests="8" failures="0" errors="0" skipped="0" time="0.562">
-        <testcase classname="tests/performance/optimization-performance.test.ts" name="Performance Optimization Tests &gt; Full Scan vs Incremental Performance &gt; should show significant performance improvement with incremental processing" time="0.06">
-            <system-out>
-Full scan: 15.97ms
-Incremental (first run): 11.60ms
-
-            </system-out>
+    <testsuite name="tests/unit/cost-calculation.test.ts" timestamp="2025-09-06T03:36:10.506Z" hostname="nagoya" tests="16" failures="0" errors="0" skipped="0" time="0.007">
+        <testcase classname="tests/unit/cost-calculation.test.ts" name="Cost Calculation &gt; Basic Cost Calculation &gt; should calculate cost correctly for Sonnet 4" time="0.002">
         </testcase>
-        <testcase classname="tests/performance/optimization-performance.test.ts" name="Performance Optimization Tests &gt; Full Scan vs Incremental Performance &gt; should demonstrate cache efficiency with repeated processing" time="0.008">
-            <system-out>
-Cache hit rate: 95.2%
-Processing time: 0.41ms
-
-            </system-out>
-        </testcase>
-        <testcase classname="tests/performance/optimization-performance.test.ts" name="Performance Optimization Tests &gt; Time Filtering Performance &gt; should show performance improvement with time filtering" time="0.015">
-            <system-out>
-No filter: 3.55ms (2000 entries)
-With filter: 1.69ms (0 entries)
-
-            </system-out>
-        </testcase>
-        <testcase classname="tests/performance/optimization-performance.test.ts" name="Performance Optimization Tests &gt; Time Filtering Performance &gt; should efficiently handle rolling window scenarios" time="0.009">
-            <system-out>
-1h window: 0.49ms (0 entries)
-3h window: 0.41ms (0 entries)
-5h window: 0.37ms (0 entries)
-8h window: 0.71ms (0 entries)
-24h window: 0.87ms (0 entries)
-
-            </system-out>
-        </testcase>
-        <testcase classname="tests/performance/optimization-performance.test.ts" name="Performance Optimization Tests &gt; Memory Efficiency &gt; should maintain reasonable memory usage with large datasets" time="0.235">
-            <system-out>
-1000 entries: 0.48MB memory increase
-5000 entries: 2.53MB memory increase
-10000 entries: 4.95MB memory increase
-20000 entries: 10.04MB memory increase
-
-            </system-out>
-        </testcase>
-        <testcase classname="tests/performance/optimization-performance.test.ts" name="Performance Optimization Tests &gt; Memory Efficiency &gt; should demonstrate memory efficiency of caching approach" time="0.046">
-            <system-out>
-Full scan memory: -12.61MB
-Incremental memory: 2.56MB
-
-            </system-out>
-        </testcase>
-        <testcase classname="tests/performance/optimization-performance.test.ts" name="Performance Optimization Tests &gt; Scalability Tests &gt; should handle realistic long-term usage patterns" time="0.167">
-            <system-out>
-Month 1: 23.00ms, cache efficiency: 0.0%
-Month 2: 9.67ms, cache efficiency: 69.0%
-Month 3: 7.01ms, cache efficiency: 70.0%
-
-            </system-out>
-        </testcase>
-        <testcase classname="tests/performance/optimization-performance.test.ts" name="Performance Optimization Tests &gt; Scalability Tests &gt; should perform well with watch mode simulation" time="0.02">
-            <system-out>
-Watch mode updates - Avg: 0.17ms, Max: 0.41ms
-
-            </system-out>
-        </testcase>
-    </testsuite>
-    <testsuite name="tests/unit/cost-calculation.test.ts" timestamp="2025-09-06T03:23:00.199Z" hostname="nagoya" tests="16" failures="0" errors="0" skipped="0" time="0.008">
-        <testcase classname="tests/unit/cost-calculation.test.ts" name="Cost Calculation &gt; Basic Cost Calculation &gt; should calculate cost correctly for Sonnet 4" time="0.001">
-        </testcase>
-        <testcase classname="tests/unit/cost-calculation.test.ts" name="Cost Calculation &gt; Basic Cost Calculation &gt; should calculate cost correctly for Opus 4" time="0.001">
+        <testcase classname="tests/unit/cost-calculation.test.ts" name="Cost Calculation &gt; Basic Cost Calculation &gt; should calculate cost correctly for Opus 4" time="0">
         </testcase>
         <testcase classname="tests/unit/cost-calculation.test.ts" name="Cost Calculation &gt; Basic Cost Calculation &gt; should calculate cost correctly for Haiku 3.5" time="0">
         </testcase>
-        <testcase classname="tests/unit/cost-calculation.test.ts" name="Cost Calculation &gt; Cache Token Calculation &gt; should calculate cache creation cost correctly" time="0">
+        <testcase classname="tests/unit/cost-calculation.test.ts" name="Cost Calculation &gt; Cache Token Calculation &gt; should calculate cache creation cost correctly" time="0.001">
         </testcase>
-        <testcase classname="tests/unit/cost-calculation.test.ts" name="Cost Calculation &gt; Cache Token Calculation &gt; should calculate cache read cost correctly" time="0.001">
+        <testcase classname="tests/unit/cost-calculation.test.ts" name="Cost Calculation &gt; Cache Token Calculation &gt; should calculate cache read cost correctly" time="0">
         </testcase>
         <testcase classname="tests/unit/cost-calculation.test.ts" name="Cost Calculation &gt; Cache Token Calculation &gt; should calculate all token types together" time="0">
         </testcase>
-        <testcase classname="tests/unit/cost-calculation.test.ts" name="Cost Calculation &gt; Edge Cases &gt; should handle zero tokens correctly" time="0">
+        <testcase classname="tests/unit/cost-calculation.test.ts" name="Cost Calculation &gt; Edge Cases &gt; should handle zero tokens correctly" time="0.001">
         </testcase>
         <testcase classname="tests/unit/cost-calculation.test.ts" name="Cost Calculation &gt; Edge Cases &gt; should handle very large token counts" time="0">
         </testcase>
         <testcase classname="tests/unit/cost-calculation.test.ts" name="Cost Calculation &gt; Edge Cases &gt; should default to Sonnet 4 pricing for unknown models" time="0">
         </testcase>
-        <testcase classname="tests/unit/cost-calculation.test.ts" name="Cost Calculation &gt; Edge Cases &gt; should handle negative token values gracefully" time="0.001">
+        <testcase classname="tests/unit/cost-calculation.test.ts" name="Cost Calculation &gt; Edge Cases &gt; should handle negative token values gracefully" time="0">
         </testcase>
         <testcase classname="tests/unit/cost-calculation.test.ts" name="Cost Calculation &gt; Precision and Rounding &gt; should maintain precision for small amounts" time="0.001">
         </testcase>
@@ -255,7 +128,7 @@ Watch mode updates - Avg: 0.17ms, Max: 0.41ms
         <testcase classname="tests/unit/cost-calculation.test.ts" name="Cost Calculation &gt; Batch Cost Calculations &gt; should calculate total cost for multiple entries correctly" time="0">
         </testcase>
     </testsuite>
-    <testsuite name="tests/unit/deduplication.test.ts" timestamp="2025-09-06T03:23:00.212Z" hostname="nagoya" tests="18" failures="0" errors="0" skipped="0" time="0.018">
+    <testsuite name="tests/unit/deduplication.test.ts" timestamp="2025-09-06T03:36:10.519Z" hostname="nagoya" tests="18" failures="0" errors="0" skipped="0" time="0.019">
         <testcase classname="tests/unit/deduplication.test.ts" name="Message Deduplication &gt; Basic Deduplication &gt; should accept new message IDs" time="0.001">
         </testcase>
         <testcase classname="tests/unit/deduplication.test.ts" name="Message Deduplication &gt; Basic Deduplication &gt; should reject duplicate message IDs" time="0">
@@ -266,17 +139,17 @@ Watch mode updates - Avg: 0.17ms, Max: 0.41ms
         </testcase>
         <testcase classname="tests/unit/deduplication.test.ts" name="Message Deduplication &gt; Entry Processing &gt; should filter out duplicate entries" time="0.002">
         </testcase>
-        <testcase classname="tests/unit/deduplication.test.ts" name="Message Deduplication &gt; Entry Processing &gt; should preserve entries without message IDs" time="0.001">
+        <testcase classname="tests/unit/deduplication.test.ts" name="Message Deduplication &gt; Entry Processing &gt; should preserve entries without message IDs" time="0">
         </testcase>
-        <testcase classname="tests/unit/deduplication.test.ts" name="Message Deduplication &gt; Entry Processing &gt; should handle entries with same content but different IDs" time="0">
+        <testcase classname="tests/unit/deduplication.test.ts" name="Message Deduplication &gt; Entry Processing &gt; should handle entries with same content but different IDs" time="0.001">
         </testcase>
-        <testcase classname="tests/unit/deduplication.test.ts" name="Message Deduplication &gt; Large Scale Deduplication &gt; should handle large numbers of messages efficiently" time="0.004">
+        <testcase classname="tests/unit/deduplication.test.ts" name="Message Deduplication &gt; Large Scale Deduplication &gt; should handle large numbers of messages efficiently" time="0.003">
         </testcase>
-        <testcase classname="tests/unit/deduplication.test.ts" name="Message Deduplication &gt; Large Scale Deduplication &gt; should handle many duplicates efficiently" time="0">
+        <testcase classname="tests/unit/deduplication.test.ts" name="Message Deduplication &gt; Large Scale Deduplication &gt; should handle many duplicates efficiently" time="0.001">
         </testcase>
         <testcase classname="tests/unit/deduplication.test.ts" name="Message Deduplication &gt; Memory Management &gt; should clear state correctly" time="0">
         </testcase>
-        <testcase classname="tests/unit/deduplication.test.ts" name="Message Deduplication &gt; Memory Management &gt; should handle memory growth with realistic usage" time="0.003">
+        <testcase classname="tests/unit/deduplication.test.ts" name="Message Deduplication &gt; Memory Management &gt; should handle memory growth with realistic usage" time="0.005">
         </testcase>
         <testcase classname="tests/unit/deduplication.test.ts" name="Message Deduplication &gt; Edge Cases &gt; should handle empty message IDs" time="0">
         </testcase>
@@ -284,23 +157,23 @@ Watch mode updates - Avg: 0.17ms, Max: 0.41ms
         </testcase>
         <testcase classname="tests/unit/deduplication.test.ts" name="Message Deduplication &gt; Edge Cases &gt; should handle special characters in message IDs" time="0.001">
         </testcase>
-        <testcase classname="tests/unit/deduplication.test.ts" name="Message Deduplication &gt; Edge Cases &gt; should be case sensitive" time="0.001">
+        <testcase classname="tests/unit/deduplication.test.ts" name="Message Deduplication &gt; Edge Cases &gt; should be case sensitive" time="0">
         </testcase>
         <testcase classname="tests/unit/deduplication.test.ts" name="Message Deduplication &gt; Real-world Scenarios &gt; should handle typical Claude Code log scenario" time="0.001">
         </testcase>
         <testcase classname="tests/unit/deduplication.test.ts" name="Message Deduplication &gt; Real-world Scenarios &gt; should handle multiple file processing scenario" time="0.001">
         </testcase>
-        <testcase classname="tests/unit/deduplication.test.ts" name="Message Deduplication &gt; Real-world Scenarios &gt; should maintain order of first occurrence" time="0">
+        <testcase classname="tests/unit/deduplication.test.ts" name="Message Deduplication &gt; Real-world Scenarios &gt; should maintain order of first occurrence" time="0.001">
         </testcase>
     </testsuite>
-    <testsuite name="tests/unit/time-utils.test.ts" timestamp="2025-09-06T03:23:00.231Z" hostname="nagoya" tests="21" failures="0" errors="0" skipped="0" time="0.039">
+    <testsuite name="tests/unit/time-utils.test.ts" timestamp="2025-09-06T03:36:10.534Z" hostname="nagoya" tests="21" failures="0" errors="0" skipped="0" time="0.04">
         <testcase classname="tests/unit/time-utils.test.ts" name="Time Utilities &gt; getHourKey &gt; should format hour key correctly for standard time" time="0.002">
         </testcase>
-        <testcase classname="tests/unit/time-utils.test.ts" name="Time Utilities &gt; getHourKey &gt; should format hour key correctly for different months" time="0.001">
+        <testcase classname="tests/unit/time-utils.test.ts" name="Time Utilities &gt; getHourKey &gt; should format hour key correctly for different months" time="0">
         </testcase>
-        <testcase classname="tests/unit/time-utils.test.ts" name="Time Utilities &gt; getHourKey &gt; should handle zero-padding correctly" time="0">
+        <testcase classname="tests/unit/time-utils.test.ts" name="Time Utilities &gt; getHourKey &gt; should handle zero-padding correctly" time="0.001">
         </testcase>
-        <testcase classname="tests/unit/time-utils.test.ts" name="Time Utilities &gt; getHourKey &gt; should handle edge cases at hour boundaries" time="0.001">
+        <testcase classname="tests/unit/time-utils.test.ts" name="Time Utilities &gt; getHourKey &gt; should handle edge cases at hour boundaries" time="0">
         </testcase>
         <testcase classname="tests/unit/time-utils.test.ts" name="Time Utilities &gt; getHourKey &gt; should handle different years correctly" time="0">
         </testcase>
@@ -308,33 +181,96 @@ Watch mode updates - Avg: 0.17ms, Max: 0.41ms
         </testcase>
         <testcase classname="tests/unit/time-utils.test.ts" name="Time Utilities &gt; getHourKey &gt; should handle timezone-aware timestamps" time="0">
         </testcase>
-        <testcase classname="tests/unit/time-utils.test.ts" name="Time Utilities &gt; getHourKey &gt; should produce consistent results for same hour" time="0.001">
+        <testcase classname="tests/unit/time-utils.test.ts" name="Time Utilities &gt; getHourKey &gt; should produce consistent results for same hour" time="0">
         </testcase>
-        <testcase classname="tests/unit/time-utils.test.ts" name="Time Utilities &gt; Time Range Filtering &gt; isWithinTimeRange &gt; should handle since parameter correctly" time="0.001">
+        <testcase classname="tests/unit/time-utils.test.ts" name="Time Utilities &gt; Time Range Filtering &gt; isWithinTimeRange &gt; should handle since parameter correctly" time="0">
         </testcase>
         <testcase classname="tests/unit/time-utils.test.ts" name="Time Utilities &gt; Time Range Filtering &gt; isWithinTimeRange &gt; should handle until parameter correctly" time="0">
         </testcase>
-        <testcase classname="tests/unit/time-utils.test.ts" name="Time Utilities &gt; Time Range Filtering &gt; isWithinTimeRange &gt; should handle both since and until parameters" time="0.001">
+        <testcase classname="tests/unit/time-utils.test.ts" name="Time Utilities &gt; Time Range Filtering &gt; isWithinTimeRange &gt; should handle both since and until parameters" time="0.002">
         </testcase>
         <testcase classname="tests/unit/time-utils.test.ts" name="Time Utilities &gt; Time Range Filtering &gt; isWithinTimeRange &gt; should return true when no filters applied" time="0">
         </testcase>
-        <testcase classname="tests/unit/time-utils.test.ts" name="Time Utilities &gt; Time Range Filtering &gt; isWithinTailHours &gt; should handle tail filtering correctly" time="0">
+        <testcase classname="tests/unit/time-utils.test.ts" name="Time Utilities &gt; Time Range Filtering &gt; isWithinTailHours &gt; should handle tail filtering correctly" time="0.001">
         </testcase>
-        <testcase classname="tests/unit/time-utils.test.ts" name="Time Utilities &gt; Time Range Filtering &gt; isWithinTailHours &gt; should handle different tail values" time="0.001">
+        <testcase classname="tests/unit/time-utils.test.ts" name="Time Utilities &gt; Time Range Filtering &gt; isWithinTailHours &gt; should handle different tail values" time="0">
         </testcase>
         <testcase classname="tests/unit/time-utils.test.ts" name="Time Utilities &gt; Time Range Filtering &gt; isWithinTailHours &gt; should handle zero tail hours" time="0">
         </testcase>
-        <testcase classname="tests/unit/time-utils.test.ts" name="Time Utilities &gt; Time Range Filtering &gt; isWithinTailHours &gt; should use current time as default reference" time="0">
+        <testcase classname="tests/unit/time-utils.test.ts" name="Time Utilities &gt; Time Range Filtering &gt; isWithinTailHours &gt; should use current time as default reference" time="0.001">
         </testcase>
-        <testcase classname="tests/unit/time-utils.test.ts" name="Time Utilities &gt; Time Aggregation Scenarios &gt; should group timestamps into correct hourly buckets" time="0.001">
+        <testcase classname="tests/unit/time-utils.test.ts" name="Time Utilities &gt; Time Aggregation Scenarios &gt; should group timestamps into correct hourly buckets" time="0">
         </testcase>
-        <testcase classname="tests/unit/time-utils.test.ts" name="Time Utilities &gt; Time Aggregation Scenarios &gt; should handle sparse time data correctly" time="0">
+        <testcase classname="tests/unit/time-utils.test.ts" name="Time Utilities &gt; Time Aggregation Scenarios &gt; should handle sparse time data correctly" time="0.001">
         </testcase>
-        <testcase classname="tests/unit/time-utils.test.ts" name="Time Utilities &gt; Time Aggregation Scenarios &gt; should handle cross-day boundaries correctly" time="0.001">
+        <testcase classname="tests/unit/time-utils.test.ts" name="Time Utilities &gt; Time Aggregation Scenarios &gt; should handle cross-day boundaries correctly" time="0.002">
         </testcase>
         <testcase classname="tests/unit/time-utils.test.ts" name="Time Utilities &gt; Performance Considerations &gt; should handle large numbers of timestamps efficiently" time="0.025">
         </testcase>
         <testcase classname="tests/unit/time-utils.test.ts" name="Time Utilities &gt; Performance Considerations &gt; should produce consistent results for repeated calls" time="0.001">
+        </testcase>
+    </testsuite>
+    <testsuite name="tests/performance/optimization-performance.test.ts" timestamp="2025-09-06T03:36:10.561Z" hostname="nagoya" tests="8" failures="0" errors="0" skipped="0" time="0.522">
+        <testcase classname="tests/performance/optimization-performance.test.ts" name="Performance Optimization Tests &gt; Full Scan vs Incremental Performance &gt; should show significant performance improvement with incremental processing" time="0.057">
+            <system-out>
+Full scan: 11.63ms
+Incremental (first run): 7.50ms
+
+            </system-out>
+        </testcase>
+        <testcase classname="tests/performance/optimization-performance.test.ts" name="Performance Optimization Tests &gt; Full Scan vs Incremental Performance &gt; should demonstrate cache efficiency with repeated processing" time="0.008">
+            <system-out>
+Cache hit rate: 95.2%
+Processing time: 0.50ms
+
+            </system-out>
+        </testcase>
+        <testcase classname="tests/performance/optimization-performance.test.ts" name="Performance Optimization Tests &gt; Time Filtering Performance &gt; should show performance improvement with time filtering" time="0.013">
+            <system-out>
+No filter: 3.03ms (2000 entries)
+With filter: 1.65ms (0 entries)
+
+            </system-out>
+        </testcase>
+        <testcase classname="tests/performance/optimization-performance.test.ts" name="Performance Optimization Tests &gt; Time Filtering Performance &gt; should efficiently handle rolling window scenarios" time="0.007">
+            <system-out>
+1h window: 0.49ms (0 entries)
+3h window: 0.40ms (0 entries)
+5h window: 0.39ms (0 entries)
+8h window: 0.40ms (0 entries)
+24h window: 0.42ms (0 entries)
+
+            </system-out>
+        </testcase>
+        <testcase classname="tests/performance/optimization-performance.test.ts" name="Performance Optimization Tests &gt; Memory Efficiency &gt; should maintain reasonable memory usage with large datasets" time="0.228">
+            <system-out>
+1000 entries: 0.48MB memory increase
+5000 entries: 2.50MB memory increase
+10000 entries: 4.93MB memory increase
+20000 entries: 1.39MB memory increase
+
+            </system-out>
+        </testcase>
+        <testcase classname="tests/performance/optimization-performance.test.ts" name="Performance Optimization Tests &gt; Memory Efficiency &gt; should demonstrate memory efficiency of caching approach" time="0.035">
+            <system-out>
+Full scan memory: -12.59MB
+Incremental memory: 2.52MB
+
+            </system-out>
+        </testcase>
+        <testcase classname="tests/performance/optimization-performance.test.ts" name="Performance Optimization Tests &gt; Scalability Tests &gt; should handle realistic long-term usage patterns" time="0.151">
+            <system-out>
+Month 1: 30.38ms, cache efficiency: 0.0%
+Month 2: 4.78ms, cache efficiency: 69.0%
+Month 3: 8.19ms, cache efficiency: 70.0%
+
+            </system-out>
+        </testcase>
+        <testcase classname="tests/performance/optimization-performance.test.ts" name="Performance Optimization Tests &gt; Scalability Tests &gt; should perform well with watch mode simulation" time="0.022">
+            <system-out>
+Watch mode updates - Avg: 0.17ms, Max: 0.59ms
+
+            </system-out>
         </testcase>
     </testsuite>
 </testsuites>
