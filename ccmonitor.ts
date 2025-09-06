@@ -517,8 +517,13 @@ class ClaudeUsageMonitor {
 
     // Data rows
     let totalInput = 0, totalOutput = 0, totalCost = 0, totalSessions = 0;
+    let outputRowCount = 0;
 
     for (const record of displayRecords) {
+      // Apply tail limiting (maxOutputLines controls number of data rows displayed)
+      if (maxOutputLines && outputRowCount >= maxOutputLines) {
+        break;
+      }
       totalInput += record.inputTokens;
       totalOutput += record.outputTokens;
       totalCost += record.cost;
@@ -531,6 +536,7 @@ class ClaudeUsageMonitor {
       const cost = `$${record.cost.toFixed(2)}`.padStart(10);
 
       console.log(`│ ${hour} │ ${input} │ ${output} │ ${total} │ ${cost} │`);
+      outputRowCount++;
     }
 
     // Separator

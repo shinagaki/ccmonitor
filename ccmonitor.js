@@ -353,7 +353,11 @@ class ClaudeUsageMonitor {
     console.log(line2);
     console.log(line3);
     let totalInput = 0, totalOutput = 0, totalCost = 0, totalSessions = 0;
+    let outputRowCount = 0;
     for (const record of displayRecords) {
+      if (maxOutputLines && outputRowCount >= maxOutputLines) {
+        break;
+      }
       totalInput += record.inputTokens;
       totalOutput += record.outputTokens;
       totalCost += record.cost;
@@ -364,6 +368,7 @@ class ClaudeUsageMonitor {
       const total = record.totalTokens.toLocaleString().padStart(12);
       const cost = `$${record.cost.toFixed(2)}`.padStart(10);
       console.log(`\u2502 ${hour} \u2502 ${input} \u2502 ${output} \u2502 ${total} \u2502 ${cost} \u2502`);
+      outputRowCount++;
     }
     console.log("\u251C\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u253C\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u253C\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u253C\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u253C\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2524");
     const totalHour = "Total".padEnd(16);
