@@ -1,6 +1,6 @@
 #!/usr/bin/env node
-// @bun @bun-cjs
-(function(exports, require, module, __filename, __dirname) {var __defProp = Object.defineProperty;
+
+var __defProp = Object.defineProperty;
 var __getOwnPropNames = Object.getOwnPropertyNames;
 var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
 var __hasOwnProp = Object.prototype.hasOwnProperty;
@@ -923,4 +923,3 @@ if (require.main == module) {
     process.exit(1);
   });
 }
-})

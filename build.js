@@ -11,20 +11,39 @@ const packageJson = JSON.parse(fs.readFileSync(path.join(__dirname, 'package.jso
 const currentVersion = packageJson.version;
 
 try {
+  // Update TypeScript file with current version
+  console.log(`📝 Updating TypeScript version to v${currentVersion}...`);
+  let tsContent = fs.readFileSync(path.join(__dirname, 'ccmonitor.ts'), 'utf8');
+  tsContent = tsContent.replace(/ccmonitor v__VERSION__/g, `ccmonitor v${currentVersion}`);
+  fs.writeFileSync(path.join(__dirname, 'ccmonitor.ts'), tsContent);
+  
   // Use Bun to transpile TypeScript to JavaScript with standalone bundle
   console.log('🔄 Transpiling TypeScript to JavaScript with Bun...');
   
-  // Bun build with --standalone to create self-contained Node.js executable  
-  execSync('bun build ccmonitor.ts --target node --format cjs --standalone --outfile ccmonitor.js', {
+  // Bun build with file output (more reliable than stdout capture)
+  execSync('bun build ccmonitor.ts --target node --format cjs --outfile ccmonitor.js', {
     cwd: __dirname,
-    stdio: 'inherit'
+    stdio: 'pipe' // Capture any issues without showing noise
   });
   
-  // Read the generated file and inject version
+  // Read the generated file
   let jsContent = fs.readFileSync(path.join(__dirname, 'ccmonitor.js'), 'utf8');
   
-  // Replace the shebang for Node.js
-  jsContent = jsContent.replace('#!/usr/bin/env bun', '#!/usr/bin/env node');
+  // Remove CommonJS wrapper that Bun adds and make it directly executable
+  if (jsContent.includes('(function(exports, require, module, __filename, __dirname)')) {
+    // Extract the main content from the wrapper
+    const wrapperStart = jsContent.indexOf('{') + 1;
+    const wrapperEnd = jsContent.lastIndexOf('})');
+    const mainContent = jsContent.substring(wrapperStart, wrapperEnd);
+    
+    // Create directly executable JavaScript
+    jsContent = `#!/usr/bin/env node
+
+${mainContent}`;
+  } else {
+    // Replace the shebang for Node.js
+    jsContent = jsContent.replace('#!/usr/bin/env bun', '#!/usr/bin/env node');
+  }
   
   // Replace version placeholder with current version from package.json
   jsContent = jsContent.replace(/"ccmonitor v\d+\.\d+\.\d+"/g, `"ccmonitor v${currentVersion}"`);
