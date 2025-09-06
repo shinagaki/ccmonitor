@@ -116,8 +116,8 @@ npx ccmonitor rolling
 npx ccmonitor rolling --cost-limit 50   # For Max $100 plan
 npx ccmonitor rolling --cost-limit 200  # For Max $200 plan
 
-# Include rolling view in report
-npx ccmonitor report --rolling --cost-limit 50
+# Rolling usage monitoring with custom cost limits
+npx ccmonitor rolling --cost-limit 50
 
 # Compact rolling display for monitoring
 npx ccmonitor rolling --no-header
@@ -218,9 +218,7 @@ npx ccmonitor report [options]
 - `--since <datetime>`: Start time (e.g., "2025-06-20 09:00")
 - `--until <datetime>`: End time (e.g., "2025-06-20 18:00")  
 - `--tail <hours>`: Show only last N hours
-- `--rolling`: Include rolling usage view
 - `--full`: Show all hours including zero usage
-- `--cost-limit <amount>`: Set custom cost limit for rolling view (default: 10)
 - `--json`: Output in JSON format
 
 ### Rolling Command

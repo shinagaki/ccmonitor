@@ -10,10 +10,9 @@
 | `--until` | `-u` | string | ✅ | ✅ | ✅ | End time filter |
 | `--json` | `-j` | boolean | ✅ | ✅ | ❌ | JSON output format |
 | `--tail` | `-t` | string | ✅ | ✅ | ✅ | Limit output lines |
-| `--rolling` | `-r` | boolean | ✅ | N/A | N/A | Show rolling usage in report |
 | `--full` | `-f` | boolean | ✅ | ✅ | ✅ | Show all hours including zero |
 | `--no-header` | | boolean | ✅ | ✅ | ✅ | Suppress descriptive headers |
-| `--cost-limit` | | string | ✅ | ✅ | ✅ | Custom cost limit (default: 10) |
+| `--cost-limit` | | string | ❌ | ✅ | ✅ | Custom cost limit (default: 10) |
 | `--watch` | | string | ❌ | ✅ | N/A | Watch interval in seconds |
 | `--help` | `-h` | boolean | ✅ | ✅ | ✅ | Show help |
 | `--version` | `-v` | boolean | ✅ | ✅ | ✅ | Show version |
@@ -27,8 +26,8 @@ ccmonitor report [options]
 - **Primary function**: Display hourly usage statistics
 - **Output**: Table format with hourly breakdown + totals
 - **Special options**:
-  - `--rolling`: Enables rolling usage display within report
   - `--json`: Outputs raw data in JSON format
+  - `--full`: Shows all hours including zero usage for time continuity
   
 ### `rolling` command  
 ```bash
@@ -74,7 +73,6 @@ ccmonitor rolling --watch [interval] [options]
 | `report --tail` | ✅ | High |
 | `report --json` | ✅ | High |  
 | `report --since --until` | ✅ | High |
-| `report --rolling` | ✅ | Medium |
 | `report --full` | ✅ | Medium |
 | `rolling --tail` | ✅ | High |
 | `rolling --json` | ✅ | Medium |
@@ -91,14 +89,14 @@ ccmonitor rolling --watch [interval] [options]
 - ✅ `report --tail` was not working (Fixed in v3.5.0+)
 
 ### Verified Working
-- ✅ `report --rolling` combination behavior (shows rolling usage with hourly report)
 - ✅ `--json` output consistency between commands (both produce valid JSON)
 - ✅ Time filter edge cases with `--full` (properly includes zero hours)
+- ✅ Clear command separation (report = hourly stats, rolling = 5-hour monitoring)
 
 ## Test Scenarios Completed
 
 ### High Priority Tests - All Working
-1. ✅ `report --rolling --cost-limit 50` (displays custom cost limit in rolling view)
+1. ✅ Report and rolling commands work independently with clean separation
 2. ✅ `rolling --json --tail 5` (JSON output with last 5 hours)
 3. ✅ `rolling --cost-limit 100 --full` (custom limit with all hours including zero)
 4. ✅ `report --full --since "2025-01-01"` (time filter with zero hour display)

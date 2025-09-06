@@ -118,8 +118,8 @@ npx ccmonitor rolling
 npx ccmonitor rolling --cost-limit 50   # Max $100 プラン用
 npx ccmonitor rolling --cost-limit 200  # Max $200 プラン用
 
-# レポートにローリングビューを含める
-npx ccmonitor report --rolling --cost-limit 50
+# ローリング使用量監視（カスタム制限値）
+npx ccmonitor rolling --cost-limit 50
 
 # 監視用のコンパクトローリング表示
 npx ccmonitor rolling --no-header
@@ -228,9 +228,7 @@ npx ccmonitor report [オプション]
 - `--since <日時>`: 開始時刻（例: "2025-06-20 09:00"）
 - `--until <日時>`: 終了時刻（例: "2025-06-20 18:00"）
 - `--tail <時間数>`: 直近 N 時間のみ表示
-- `--rolling`: ローリング使用量ビューを含める
 - `--full`: ゼロ使用量を含む全時間表示
-- `--cost-limit <金額>`: ローリングビューのカスタム制限値（デフォルト: 10）
 - `--json`: JSON 形式で出力
 
 ### rolling コマンド

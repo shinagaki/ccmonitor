@@ -409,16 +409,12 @@ class ClaudeUsageMonitor {
     // console.log(`✅ Usage data collected and saved to ${this.logFile}`);
   }
 
-  async report(options: { since?: string; until?: string; json?: boolean; tail?: number; rolling?: boolean; full?: boolean; noHeader?: boolean; costLimit?: number }): Promise<void> {
+  async report(options: { since?: string; until?: string; json?: boolean; tail?: number; full?: boolean; noHeader?: boolean }): Promise<void> {
     // Auto-collect data before reporting with efficient incremental loading and time filtering
     await this.initializeCache();
     
-    // Estimate required time range for efficient filtering
+    // Use tail option as-is for filtering
     let estimatedTail = options.tail;
-    if (options.rolling && options.tail) {
-      // For rolling mode, need additional 5 hours for rolling window calculation
-      estimatedTail = options.tail + 5;
-    }
     
     await this.collectIncremental({ since: options.since, tail: estimatedTail });
 
@@ -441,11 +437,7 @@ class ClaudeUsageMonitor {
         return;
       }
 
-      if (options.rolling) {
-        this.displayRollingUsage(records, options.full, options.noHeader, options.costLimit, options.tail || (options as any).maxDataRows);
-      } else {
-        this.displayTable(records, options.full, options.noHeader, options.tail);
-      }
+      this.displayTable(records, options.full, options.noHeader, options.tail);
     } catch (error) {
       console.error('❌ No usage data found. Please ensure Claude Code has been used and logs exist in ~/.claude/projects/');
     }
@@ -692,7 +684,7 @@ class ClaudeUsageMonitor {
   }
 
   // Efficient generate report output for watch mode (uses cached data)
-  async generateReportOutputIncremental(options: { since?: string; until?: string; json?: boolean; tail?: number; rolling?: boolean; full?: boolean; noHeader?: boolean; costLimit?: number; maxDataRows?: number }): Promise<string> {
+  async generateReportOutputIncremental(options: { since?: string; until?: string; json?: boolean; tail?: number; full?: boolean; noHeader?: boolean; maxDataRows?: number }): Promise<string> {
     // Use incremental data collection with time filtering for efficiency
     // Estimate required time range
     let estimatedTail = options.tail;
@@ -718,11 +710,7 @@ class ClaudeUsageMonitor {
       return JSON.stringify(records, null, 2);
     }
 
-    if (options.rolling) {
-      return this.generateRollingUsageOutput(records, options.full, options.noHeader, options.costLimit, options.tail || options.maxDataRows);
-    } else {
-      return this.generateTableOutput(records, options.full, options.noHeader, options.tail);
-    }
+    return this.generateTableOutput(records, options.full, options.noHeader, options.tail);
   }
 
   // Generate rolling output using incremental cache (for efficient watch mode)
@@ -751,16 +739,12 @@ class ClaudeUsageMonitor {
   }
 
   // Generate report output as string (for buffered output in watch mode)
-  async generateReportOutput(options: { since?: string; until?: string; json?: boolean; tail?: number; rolling?: boolean; full?: boolean; noHeader?: boolean; costLimit?: number; maxDataRows?: number }): Promise<string> {
+  async generateReportOutput(options: { since?: string; until?: string; json?: boolean; tail?: number; full?: boolean; noHeader?: boolean; maxDataRows?: number }): Promise<string> {
     // Auto-collect data before reporting with efficient incremental loading and time filtering
     await this.initializeCache();
     
-    // Estimate required time range for efficient filtering
+    // Use tail option as-is for filtering
     let estimatedTail = options.tail;
-    if (options.rolling && options.tail) {
-      // For rolling mode, need additional 5 hours for rolling window calculation
-      estimatedTail = options.tail + 5;
-    }
     
     await this.collectIncremental({ since: options.since, tail: estimatedTail });
 
@@ -1114,7 +1098,6 @@ async function main() {
       'tail': { type: 'string', short: 't' },
       'help': { type: 'boolean', short: 'h' },
       'version': { type: 'boolean', short: 'v' },
-      'rolling': { type: 'boolean', short: 'r' },
       'full': { type: 'boolean', short: 'f' },
       'no-header': { type: 'boolean' },
       'cost-limit': { type: 'string' },
@@ -1141,7 +1124,6 @@ OPTIONS:
   -u, --until <datetime>   Filter until datetime (YYYY-MM-DD HH:mm format)
   -t, --tail <number>      Show last N hours only
   -j, --json              Output in JSON format
-  -r, --rolling           Show 5-hour rolling usage monitor
   -f, --full              Show all hours including zero usage (for rolling mode)
   --no-header             Hide feature description headers for compact display
   --cost-limit <amount>   Set custom cost limit for rolling usage monitor (default: 10)
@@ -1154,7 +1136,6 @@ EXAMPLES:
   ccmonitor rolling
   ccmonitor rolling --full
   ccmonitor report --since "2025-06-15 09:00" --tail 24
-  ccmonitor report --rolling --full
   ccmonitor report --json
   
   # Custom cost limits for different plans
@@ -1199,10 +1180,8 @@ EXAMPLES:
         until: values.until as string,
         json: values.json as boolean,
         tail: values.tail ? parseInt(values.tail as string) : undefined,
-        rolling: values.rolling as boolean,
         full: values.full as boolean,
-        noHeader: values['no-header'] as boolean,
-        costLimit: costLimit
+        noHeader: values['no-header'] as boolean
       });
       break;
     case 'rolling':
@@ -1224,16 +1203,23 @@ EXAMPLES:
           costLimit: costLimit
         });
       } else {
-        await monitor.report({
-          since: values.since as string,
-          until: values.until as string,
-          json: values.json as boolean,
-          tail: values.tail ? parseInt(values.tail as string) : undefined, // Don't limit for rolling - need 5-hour window data
-          rolling: true,
-          full: values.full as boolean,
-          noHeader: values['no-header'] as boolean,
-          costLimit: costLimit
-        });
+        // Rolling command without watch mode - collect data and display rolling usage
+        await monitor.initializeCache();
+        const estimatedTail = values.tail ? parseInt(values.tail as string) + 5 : undefined; // Add buffer for rolling window
+        await monitor.collectIncremental({ since: values.since as string, tail: estimatedTail });
+        
+        let records = Array.from(monitor.getCachedStats().values()).filter(record => record && record.hour);
+        
+        // Apply time filtering
+        if (values.since) records = records.filter(r => r.hour >= (values.since as string));
+        if (values.until) records = records.filter(r => r.hour <= (values.until as string));
+        
+        // Apply output formatting
+        if (values.json) {
+          console.log(JSON.stringify(records, null, 2));
+        } else {
+          monitor.displayRollingUsage(records, values.full as boolean, values['no-header'] as boolean, costLimit, values.tail ? parseInt(values.tail as string) : undefined);
+        }
       }
       break;
     default:

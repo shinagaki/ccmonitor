@@ -309,9 +309,6 @@ class ClaudeUsageMonitor {
   async report(options) {
     await this.initializeCache();
     let estimatedTail = options.tail;
-    if (options.rolling && options.tail) {
-      estimatedTail = options.tail + 5;
-    }
     await this.collectIncremental({ since: options.since, tail: estimatedTail });
     try {
       let records = Array.from(this.cachedHourlyStats.values()).filter((record) => record && record.hour);
@@ -325,11 +322,7 @@ class ClaudeUsageMonitor {
         console.log(JSON.stringify(records, null, 2));
         return;
       }
-      if (options.rolling) {
-        this.displayRollingUsage(records, options.full, options.noHeader, options.costLimit, options.tail || options.maxDataRows);
-      } else {
-        this.displayTable(records, options.full, options.noHeader, options.tail);
-      }
+      this.displayTable(records, options.full, options.noHeader, options.tail);
     } catch (error) {
       console.error("\u274C No usage data found. Please ensure Claude Code has been used and logs exist in ~/.claude/projects/");
     }
@@ -532,11 +525,7 @@ class ClaudeUsageMonitor {
     if (options.json) {
       return JSON.stringify(records, null, 2);
     }
-    if (options.rolling) {
-      return this.generateRollingUsageOutput(records, options.full, options.noHeader, options.costLimit, options.tail || options.maxDataRows);
-    } else {
-      return this.generateTableOutput(records, options.full, options.noHeader, options.tail);
-    }
+    return this.generateTableOutput(records, options.full, options.noHeader, options.tail);
   }
   async generateRollingOutputIncremental(options) {
     const estimatedTail = options.tail ? options.tail + 5 : undefined;
@@ -556,9 +545,6 @@ class ClaudeUsageMonitor {
   async generateReportOutput(options) {
     await this.initializeCache();
     let estimatedTail = options.tail;
-    if (options.rolling && options.tail) {
-      estimatedTail = options.tail + 5;
-    }
     await this.collectIncremental({ since: options.since, tail: estimatedTail });
     try {
       let records = Array.from(this.cachedHourlyStats.values()).filter((record) => record && record.hour);
@@ -811,7 +797,6 @@ async function main() {
       tail: { type: "string", short: "t" },
       help: { type: "boolean", short: "h" },
       version: { type: "boolean", short: "v" },
-      rolling: { type: "boolean", short: "r" },
       full: { type: "boolean", short: "f" },
       "no-header": { type: "boolean" },
       "cost-limit": { type: "string" },
@@ -837,7 +822,6 @@ OPTIONS:
   -u, --until <datetime>   Filter until datetime (YYYY-MM-DD HH:mm format)
   -t, --tail <number>      Show last N hours only
   -j, --json              Output in JSON format
-  -r, --rolling           Show 5-hour rolling usage monitor
   -f, --full              Show all hours including zero usage (for rolling mode)
   --no-header             Hide feature description headers for compact display
   --cost-limit <amount>   Set custom cost limit for rolling usage monitor (default: 10)
@@ -850,7 +834,6 @@ EXAMPLES:
   ccmonitor rolling
   ccmonitor rolling --full
   ccmonitor report --since "2025-06-15 09:00" --tail 24
-  ccmonitor report --rolling --full
   ccmonitor report --json
   
   # Custom cost limits for different plans
@@ -890,10 +873,8 @@ EXAMPLES:
         until: values.until,
         json: values.json,
         tail: values.tail ? parseInt(values.tail) : undefined,
-        rolling: values.rolling,
         full: values.full,
-        noHeader: values["no-header"],
-        costLimit
+        noHeader: values["no-header"]
       });
       break;
     case "rolling":
@@ -913,16 +894,19 @@ EXAMPLES:
           costLimit
         });
       } else {
-        await monitor.report({
-          since: values.since,
-          until: values.until,
-          json: values.json,
-          tail: values.tail ? parseInt(values.tail) : undefined,
-          rolling: true,
-          full: values.full,
-          noHeader: values["no-header"],
-          costLimit
-        });
+        await monitor.initializeCache();
+        const estimatedTail = values.tail ? parseInt(values.tail) + 5 : undefined;
+        await monitor.collectIncremental({ since: values.since, tail: estimatedTail });
+        let records = Array.from(monitor.getCachedStats().values()).filter((record) => record && record.hour);
+        if (values.since)
+          records = records.filter((r) => r.hour >= values.since);
+        if (values.until)
+          records = records.filter((r) => r.hour <= values.until);
+        if (values.json) {
+          console.log(JSON.stringify(records, null, 2));
+        } else {
+          monitor.displayRollingUsage(records, values.full, values["no-header"], costLimit, values.tail ? parseInt(values.tail) : undefined);
+        }
       }
       break;
     default:
