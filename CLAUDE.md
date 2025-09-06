@@ -168,6 +168,38 @@ The `--tail` option now uses output-line-based limiting (like Unix `tail -n`):
 - Works consistently across both regular and watch modes
 - Automatic terminal size adjustment in watch mode
 
+## Build System
+
+### TypeScript Transpilation Architecture
+The project uses Bun for efficient TypeScript to JavaScript transpilation:
+
+```bash
+# build.js process overview:
+# 1. Read current version from package.json
+# 2. Use Bun to transpile ccmonitor.ts to CommonJS format
+# 3. Remove Bun's CommonJS wrapper for Node.js compatibility  
+# 4. Replace shebang: #!/usr/bin/env bun → #!/usr/bin/env node
+# 5. Inject current version into console.log statements
+# 6. Set executable permissions
+```
+
+### Dual-Runtime Support
+- **Development**: `ccmonitor.ts` with Bun runtime (direct TypeScript execution)
+- **Production**: `ccmonitor.js` with Node.js runtime (transpiled, npm distribution)
+- **Zero Dependencies**: Uses only Node.js built-ins (fs, path, os, util)
+
+### Build Process Details
+```bash
+# Manual build
+npm run build
+
+# Automatic build (during npm publish)
+npm publish  # Runs prepublishOnly → npm run build
+
+# Build validation
+npm run build && ./ccmonitor.js --version
+```
+
 ## Implementation Details
 
 ### Data Deduplication Strategy
@@ -287,17 +319,17 @@ watch -n 30 './ccmonitor rolling --full --no-header --cost-limit 50'  # Custom l
 ```
 
 ### Version Release Process
-Version synchronization is critical with dual-file architecture:
+Version synchronization with TypeScript transpilation architecture:
 ```bash
-# Standard npm-based releases (automatically syncs package.json and builds)
+# Standard npm-based releases (automatically transpiles and publishes)
 npm run release:patch  # For bug fixes (auto-increments version)
 npm run release:minor  # For new features
 npm run release:major  # For breaking changes
 
-# Manual version sync (if needed)
-# 1. Update package.json version
-# 2. Update ccmonitor.ts version string manually
-# 3. Run npm run build (automatically syncs to ccmonitor.js)
+# Build process: TypeScript → Bun transpilation → CommonJS cleanup → Version injection
+# 1. Bun transpiles ccmonitor.ts to CommonJS format
+# 2. build.js removes CommonJS wrapper and injects current version
+# 3. Result: Node.js-compatible ccmonitor.js
 ```
 
 ### Linting and Type Checking

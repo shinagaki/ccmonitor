@@ -343,6 +343,10 @@ ccmonitor --version
 5. Run `npm run build` to ensure JavaScript version works
 6. Submit a pull request
 
+## Acknowledgments
+
+Special thanks to [@xxGodLiuxx](https://github.com/xxGodLiuxx) for inspiring the watch mode feature and providing valuable insights on memory management and continuous monitoring patterns.
+
 ## License
 
 MIT License - see [LICENSE](LICENSE) file for details.

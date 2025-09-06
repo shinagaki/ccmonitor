@@ -363,6 +363,10 @@ ccmonitor --version
 5. `npm run build`で JavaScript バージョンが動作することを確認
 6. プルリクエストを提出
 
+## 謝辞
+
+ウォッチモード機能のアイデアとメモリ管理および継続監視パターンに関する貴重な知見を提供していただいた [@xxGodLiuxx](https://github.com/xxGodLiuxx) 氏に特別な感謝を表します。
+
 ## ライセンス
 
 MIT License - 詳細は[LICENSE](LICENSE) ファイルを参照。
