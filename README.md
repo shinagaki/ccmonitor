@@ -138,18 +138,6 @@ npx ccmonitor rolling --watch --no-header --tail 5
 npx ccmonitor rolling --watch --cost-limit 50 --tail 8
 ```
 
-### External Monitoring with `watch` command
-```bash
-# Alternative: Monitor rolling usage every 60 seconds with external watch
-watch -n 60 'npx ccmonitor rolling --no-header'
-
-# Continuous monitoring with full time range
-watch -n 30 'npx ccmonitor rolling --full --no-header'
-
-# Watch recent usage patterns  
-watch -n 120 'npx ccmonitor report --no-header --tail 12'
-```
-
 ## Understanding the Output
 
 ### Hourly Report
