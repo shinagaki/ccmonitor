@@ -831,7 +831,7 @@ EXAMPLES:
     return;
   }
   if (values.version) {
-    console.log("ccmonitor v3.4.0");
+    console.log("ccmonitor v3.5.0");
     return;
   }
   let costLimit = 10;
