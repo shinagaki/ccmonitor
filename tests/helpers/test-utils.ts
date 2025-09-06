@@ -53,7 +53,8 @@ export class TestUtils {
   static createMockLogEntries(count: number, options: {
     models?: string[],
     timeRange?: { start: Date, end: Date },
-    duplicateIds?: boolean
+    duplicateIds?: boolean,
+    includeCache?: boolean
   } = {}): ClaudeLogEntry[] {
     const {
       models = ['claude-sonnet-4-20250514', 'claude-opus-4-20250514', 'claude-haiku-3.5-20241022'],
@@ -61,7 +62,8 @@ export class TestUtils {
         start: new Date('2025-01-01T00:00:00Z'),
         end: new Date('2025-01-01T23:59:59Z')
       },
-      duplicateIds = false
+      duplicateIds = false,
+      includeCache = true
     } = options
 
     const entries: ClaudeLogEntry[] = []
@@ -91,8 +93,8 @@ export class TestUtils {
       // Generate realistic token counts
       const inputTokens = Math.floor(Math.random() * 3000) + 100
       const outputTokens = Math.floor(Math.random() * 2000) + 50
-      const cacheCreationTokens = Math.random() < 0.3 ? Math.floor(Math.random() * 500) : 0
-      const cacheReadTokens = Math.random() < 0.2 ? Math.floor(Math.random() * 1000) : 0
+      const cacheCreationTokens = includeCache && Math.random() < 0.3 ? Math.floor(Math.random() * 500) : 0
+      const cacheReadTokens = includeCache && Math.random() < 0.2 ? Math.floor(Math.random() * 1000) : 0
 
       entries.push(this.createMockLogEntry({
         timestamp,

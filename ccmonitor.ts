@@ -1244,6 +1244,9 @@ EXAMPLES:
   }
 }
 
+// Export for testing
+export { ClaudeUsageMonitor, HourlyStats, ClaudeLogEntry };
+
 if (import.meta.main) {
   main().catch(error => {
     console.error('❌ Fatal error in ccmonitor:', error);

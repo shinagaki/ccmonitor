@@ -11,11 +11,11 @@ const packageJson = JSON.parse(fs.readFileSync(path.join(__dirname, 'package.jso
 const currentVersion = packageJson.version;
 
 try {
-  // Use Bun to transpile TypeScript to JavaScript
+  // Use Bun to transpile TypeScript to JavaScript with standalone bundle
   console.log('🔄 Transpiling TypeScript to JavaScript with Bun...');
   
-  // Bun build with Node.js target - remove --standalone that was causing wrapper issues
-  execSync('bun build ccmonitor.ts --target node --format cjs --outfile ccmonitor.js', {
+  // Bun build with --standalone to create self-contained Node.js executable  
+  execSync('bun build ccmonitor.ts --target node --format cjs --standalone --outfile ccmonitor.js', {
     cwd: __dirname,
     stdio: 'inherit'
   });
@@ -25,17 +25,6 @@ try {
   
   // Replace the shebang for Node.js
   jsContent = jsContent.replace('#!/usr/bin/env bun', '#!/usr/bin/env node');
-  
-  // Remove CommonJS wrapper - convert to plain JavaScript
-  if (jsContent.includes('(function(exports, require, module, __filename, __dirname) {')) {
-    // Remove wrapper function and add proper module handling
-    jsContent = jsContent.replace(
-      '// @bun @bun-cjs\n(function(exports, require, module, __filename, __dirname) {\n',
-      '// @bun @bun-cjs - transpiled by build.js\n'
-    );
-    // Remove the closing wrapper
-    jsContent = jsContent.replace(/\}\)$/m, '');
-  }
   
   // Replace version placeholder with current version from package.json
   jsContent = jsContent.replace(/"ccmonitor v\d+\.\d+\.\d+"/g, `"ccmonitor v${currentVersion}"`);
