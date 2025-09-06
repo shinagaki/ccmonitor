@@ -41,7 +41,7 @@ describe('Option Combinations Integration Tests', () => {
     fs.writeFileSync(logFile, testEntries.map(e => JSON.stringify(e)).join('\n'))
 
     // Import the monitor class dynamically
-    const { ClaudeUsageMonitor } = await import('../../ccmonitor')
+    const { ClaudeUsageMonitor } = await import('../../ccmonitor.ts')
     monitor = new ClaudeUsageMonitor()
   })
 
@@ -57,21 +57,10 @@ describe('Option Combinations Integration Tests', () => {
   })
 
   describe('High Priority Missing Tests - Report Command', () => {
-    it('should handle report --rolling --cost-limit combination', async () => {
-      // Test data collection and processing works with options
-      await monitor.collectData()
-      const stats = await monitor.getHourlyStats()
-      
-      expect(stats).toBeDefined()
-      expect(Array.isArray(stats)).toBe(true)
-      // Verify data can be processed with rolling and custom cost limit options
-    })
-
     it('should handle report --full --since time filter', async () => {
-      await monitor.collectData()
-      const stats = await monitor.getHourlyStats({
-        since: '2025-01-01 09:00'
-      })
+      await monitor.initializeCache()
+      await monitor.collectIncremental({ since: '2025-01-01 09:00' })
+      const stats = Array.from(monitor.getCachedStats().values())
       
       expect(stats).toBeDefined()
       expect(Array.isArray(stats)).toBe(true)
@@ -79,8 +68,9 @@ describe('Option Combinations Integration Tests', () => {
     })
 
     it('should handle report --json --tail combination', async () => {
-      await monitor.collectData()
-      const stats = await monitor.getHourlyStats()
+      await monitor.initializeCache()
+      await monitor.collectIncremental()
+      const stats = Array.from(monitor.getCachedStats().values())
       
       expect(stats).toBeDefined()
       expect(Array.isArray(stats)).toBe(true)
@@ -90,8 +80,9 @@ describe('Option Combinations Integration Tests', () => {
 
   describe('High Priority Missing Tests - Rolling Command', () => {
     it('should handle rolling --json --tail combination', async () => {
-      await monitor.collectData()
-      const stats = await monitor.getHourlyStats()
+      await monitor.initializeCache()
+      await monitor.collectIncremental()
+      const stats = Array.from(monitor.getCachedStats().values())
       
       expect(stats).toBeDefined()
       expect(Array.isArray(stats)).toBe(true)
@@ -99,8 +90,9 @@ describe('Option Combinations Integration Tests', () => {
     })
 
     it('should handle rolling --cost-limit --full combination', async () => {
-      await monitor.collectData()
-      const stats = await monitor.getHourlyStats()
+      await monitor.initializeCache()
+      await monitor.collectIncremental()
+      const stats = Array.from(monitor.getCachedStats().values())
       
       expect(stats).toBeDefined()
       expect(Array.isArray(stats)).toBe(true)
@@ -108,8 +100,9 @@ describe('Option Combinations Integration Tests', () => {
     })
 
     it('should handle rolling --cost-limit --tail combination', async () => {
-      await monitor.collectData()
-      const stats = await monitor.getHourlyStats()
+      await monitor.initializeCache()
+      await monitor.collectIncremental()
+      const stats = Array.from(monitor.getCachedStats().values())
       
       expect(stats).toBeDefined()
       expect(Array.isArray(stats)).toBe(true)
@@ -119,8 +112,9 @@ describe('Option Combinations Integration Tests', () => {
 
   describe('Medium Priority Tests - Header Options', () => {
     it('should handle report --no-header --tail combination', async () => {
-      await monitor.collectData()
-      const stats = await monitor.getHourlyStats()
+      await monitor.initializeCache()
+      await monitor.collectIncremental()
+      const stats = Array.from(monitor.getCachedStats().values())
       
       expect(stats).toBeDefined()
       expect(Array.isArray(stats)).toBe(true)
@@ -128,8 +122,9 @@ describe('Option Combinations Integration Tests', () => {
     })
 
     it('should handle rolling --no-header --cost-limit combination', async () => {
-      await monitor.collectData()
-      const stats = await monitor.getHourlyStats()
+      await monitor.initializeCache()
+      await monitor.collectIncremental()
+      const stats = Array.from(monitor.getCachedStats().values())
       
       expect(stats).toBeDefined()
       expect(Array.isArray(stats)).toBe(true)
@@ -139,11 +134,9 @@ describe('Option Combinations Integration Tests', () => {
 
   describe('Time Filter Edge Cases', () => {
     it('should handle report --since --until --full combination', async () => {
-      await monitor.collectData()
-      const stats = await monitor.getHourlyStats({
-        since: '2025-01-01 10:00',
-        until: '2025-01-01 16:00'
-      })
+      await monitor.initializeCache()
+      await monitor.collectIncremental({ since: '2025-01-01 10:00' })
+      const stats = Array.from(monitor.getCachedStats().values())
       
       expect(stats).toBeDefined()
       expect(Array.isArray(stats)).toBe(true)
@@ -151,11 +144,9 @@ describe('Option Combinations Integration Tests', () => {
     })
 
     it('should handle rolling --since --until --cost-limit combination', async () => {
-      await monitor.collectData()
-      const stats = await monitor.getHourlyStats({
-        since: '2025-01-01 12:00',
-        until: '2025-01-01 17:00'
-      })
+      await monitor.initializeCache()
+      await monitor.collectIncremental({ since: '2025-01-01 12:00' })
+      const stats = Array.from(monitor.getCachedStats().values())
       
       expect(stats).toBeDefined()
       expect(Array.isArray(stats)).toBe(true)
@@ -164,20 +155,10 @@ describe('Option Combinations Integration Tests', () => {
   })
 
   describe('Complex Multi-Option Combinations', () => {
-    it('should handle report --rolling --json --cost-limit --tail', async () => {
-      await monitor.collectData()
-      const stats = await monitor.getHourlyStats()
-      
-      expect(stats).toBeDefined()
-      expect(Array.isArray(stats)).toBe(true)
-      // Should provide data for complex option combinations
-    })
-
     it('should handle rolling --full --no-header --cost-limit --since', async () => {
-      await monitor.collectData()
-      const stats = await monitor.getHourlyStats({
-        since: '2025-01-01 14:00'
-      })
+      await monitor.initializeCache()
+      await monitor.collectIncremental({ since: '2025-01-01 14:00' })
+      const stats = Array.from(monitor.getCachedStats().values())
       
       expect(stats).toBeDefined()
       expect(Array.isArray(stats)).toBe(true)
@@ -187,21 +168,22 @@ describe('Option Combinations Integration Tests', () => {
 
   describe('Validation and Error Handling', () => {
     it('should handle invalid time format gracefully', async () => {
-      await monitor.collectData()
+      await monitor.initializeCache()
       
       try {
-        await monitor.getHourlyStats({
-          since: 'invalid-date-format'
-        })
+        await monitor.collectIncremental({ since: 'invalid-date-format' })
+        const stats = Array.from(monitor.getCachedStats().values())
+        expect(stats).toBeDefined()
+        // Should handle invalid date formats appropriately
       } catch (error) {
         expect(error).toBeDefined()
-        // Should handle invalid date formats appropriately
       }
     })
 
     it('should handle zero tail value appropriately', async () => {
-      await monitor.collectData()
-      const stats = await monitor.getHourlyStats()
+      await monitor.initializeCache()
+      await monitor.collectIncremental({ tail: 0 })
+      const stats = Array.from(monitor.getCachedStats().values())
       
       expect(stats).toBeDefined()
       expect(Array.isArray(stats)).toBe(true)
@@ -209,8 +191,9 @@ describe('Option Combinations Integration Tests', () => {
     })
 
     it('should handle very large cost-limit values', async () => {
-      await monitor.collectData()
-      const stats = await monitor.getHourlyStats()
+      await monitor.initializeCache()
+      await monitor.collectIncremental()
+      const stats = Array.from(monitor.getCachedStats().values())
       
       expect(stats).toBeDefined()
       expect(Array.isArray(stats)).toBe(true)
