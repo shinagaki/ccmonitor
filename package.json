@@ -12,6 +12,8 @@
     "test:watch": "vitest",
     "test:coverage": "vitest run --coverage",
     "test:ui": "vitest --ui",
+    "preversion": "npm test",
+    "version": "npm run build && git add ccmonitor.js",
     "prepublishOnly": "npm run build",
     "release:patch": "npm version patch && git push && npm publish",
     "release:minor": "npm version minor && git push && npm publish",
