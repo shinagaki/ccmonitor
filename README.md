@@ -2,6 +2,10 @@
 
 A command-line tool for monitoring Claude Code usage patterns with time-based analysis, similar to Linux's `sar` command but for Claude Code sessions.
 
+> **⚠️ DEPRECATED — No longer maintained (May 2026)**: ccmonitor has reached end of life
+> and is no longer maintained. No further updates or releases will be made. Thank you to
+> everyone who used it.
+>
 > **📢 Repository Renamed**: This project was previously named `claude-usage-monitor` and is now renamed to `ccmonitor` for brevity. Please update your bookmarks and local repository URLs.
 >
 > **🚀 Now Available via npx**: As of v3.0.0, ccmonitor supports `npx ccmonitor` for instant usage without installation! No more manual downloads or Bun dependencies required. The tool now supports both Node.js (via npm/npx) and Bun runtimes.
